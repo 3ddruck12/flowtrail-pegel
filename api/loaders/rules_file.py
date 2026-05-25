@@ -35,6 +35,11 @@ def parse_rule(entry: dict[str, Any]) -> RiverRule:
         pegelonline_uuid=entry.get("pegelonline_uuid"),
         source="flowtrail_rules",
         nrw_befahrbarkeit=entry.get("nrw_befahrbarkeit"),
+        state=entry.get("state"),
+        lhp_id=entry.get("lhp_id"),
+        external_station_id=entry.get("external_station_id"),
+        level_provider=entry.get("level_provider") or entry.get("provider"),
+        station_link=entry.get("station_link"),
     )
 
 

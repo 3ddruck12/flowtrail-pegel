@@ -26,6 +26,15 @@ class RiverRule(BaseModel):
     pegelonline_uuid: Optional[str] = None
     source: str = "kanu_nrw"
     nrw_befahrbarkeit: Optional[str] = None
+    state: Optional[str] = Field(default=None, description="ISO-Bundesland, z. B. DE-NW")
+    lhp_id: Optional[str] = None
+    external_station_id: Optional[str] = Field(
+        default=None, description="Landes-Pegel-ID, z. B. OpenHygon station_no"
+    )
+    level_provider: Optional[str] = Field(
+        default=None, description="Erzwungener Level-Provider, z. B. openhygon"
+    )
+    station_link: Optional[str] = None
 
 
 class PegelReading(BaseModel):
@@ -52,6 +61,11 @@ class StatusResponse(BaseModel):
     source: str
     pegelonline_uuid: Optional[str] = None
     nrw_befahrbarkeit: Optional[str] = None
+    state: Optional[str] = None
+    flood_class: Optional[str] = None
+    lhp_id: Optional[str] = None
+    station_link: Optional[str] = None
+    external_station_id: Optional[str] = None
 
 
 class RiverSummary(BaseModel):

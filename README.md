@@ -2,17 +2,15 @@
 
 Statischer Befahrbarkeits-Datensatz für die [FlowTrail](https://github.com/3ddruck12/FlowTrail)-App.
 
-**Mindestpegel** aus [`data/rules.json`](data/rules.json) (manuell gepflegt, ursprünglich von Kanu-NRW übernommen) + **Live-Pegel** von PEGELONLINE + **Hochwasser** von LHP — ohne VPS.
-
-## Dateien
+**Mindestpegel** aus [`data/rules.json`](data/rules.json) + **LHP** (Bundesland & Hochwasser) + **OpenHygon NRW** (Live-cm für `DE-NW`) + **PEGELONLINE** (Fallback) — ohne VPS.
 
 | Datei | Zweck |
 |-------|-------|
 | `data/rules.json` | **Mindestpegel pro Fluss/Messstelle** (Grundlage für grün/rot) |
 | `manifest.json` | Version, Label, URL zu `pegel.json` |
-| `pegel.json` | Flüsse + Abschnitte mit berechnetem Befahrbarkeitsstatus |
+| `pegel.json` | Flüsse + Abschnitte mit Status, `state`, `flood_class`, Live-cm |
 | `scripts/build_pegel_json.py` | Export-Skript (GitHub Actions) |
-| `api/` | Python-Logik (Regeln, PEGELONLINE, LHP, Status) |
+| `api/clients/levels/` | Erweiterbare Landes-Provider (aktuell: OpenHygon NRW) |
 
 ## Regeln bearbeiten
 

@@ -23,11 +23,7 @@ def main() -> None:
     print("Sync:", sync_result)
 
     rivers_response = service.list_rivers()
-    flood_map = service.lhp_client.fetch_flood_classes()
-    sections = []
-    for summary in rivers_response.rivers:
-        for status in service.get_river_statuses(summary.river, flood_map=flood_map):
-            sections.append(status.model_dump(mode="json"))
+    sections = service.export_all_statuses()
 
     now = datetime.now(timezone.utc)
     version = now.strftime("%Y-%m-%dT%H")
@@ -35,13 +31,13 @@ def main() -> None:
     pegel = {
         "updated_at": now.isoformat(),
         "rivers": [r.model_dump(mode="json") for r in rivers_response.rivers],
-        "sections": sections,
+        "sections": [s.model_dump(mode="json") for s in sections],
     }
 
     manifest = {
         "version": version,
         "updatedAt": now.isoformat(),
-        "label": "NRW Befahrbarkeit (rules.json + PEGELONLINE + LHP)",
+        "label": "NRW Befahrbarkeit (rules.json + LHP + OpenHygon + PEGELONLINE)",
         "dataUrl": DATA_URL,
     }
 

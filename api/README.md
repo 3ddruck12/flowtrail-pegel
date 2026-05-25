@@ -6,37 +6,38 @@ REST-Backend zur **automatischen Bewertung der Flussbefahrbarkeit** für Kanufah
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Kanu NRW       │     │  PEGELONLINE     │     │  LHP (optional) │
-│  Scraper        │     │  API Client      │     │  Hochwasser     │
-│  (Mindestpegel) │     │  (Live-Pegel)    │     │  Klassen        │
-└────────┬────────┘     └────────┬─────────┘     └────────┬────────┘
-         │                       │                          │
-         └───────────────────────┼──────────────────────────┘
+│  data/rules.json│     │  PEGELONLINE     │     │  LHP            │
+│  Mindestpegel   │     │  (Fallback cm)   │     │  Bundesland +   │
+└────────┬────────┘     └────────┬─────────┘     │  Hochwasser     │
+         │                       │               └────────┬────────┘
+         │              ┌────────┴─────────┐              │
+         │              │ LevelResolver    │◄─────────────┘
+         │              │ + OpenHygon NRW  │
+         └──────────────┤ + weitere BL…    │
+                        └────────┬─────────┘
                                  ▼
                     ┌────────────────────────┐
                     │  RiverService          │
                     │  + SQLite              │
-                    │  + In-Memory Cache     │
                     └────────────┬───────────┘
                                  ▼
                     ┌────────────────────────┐
                     │  get_canoe_status()    │
-                    │  too_low | ok | good   │
-                    │  high | danger         │
                     └────────────┬───────────┘
                                  ▼
                     ┌────────────────────────┐
-                    │  FastAPI REST          │
-                    │  GET /rivers           │
-                    │  GET /status?river=…   │
+                    │  FastAPI / pegel.json  │
                     └────────────────────────┘
 ```
 
 | Modul | Aufgabe |
 |-------|---------|
-| `scrapers/kanu_nrw.py` | Scraped `sites.kanu-nrw.de/pegel.php` (iframe-Inhalt) |
-| `clients/pegelonline.py` | Live-Pegel von [PEGELONLINE](https://pegelonline.wsv.de) |
-| `clients/hochwasserzentralen.py` | Hochwasser-Klassen von [LHP](https://www.hochwasserzentralen.de/developers/) |
+| `loaders/rules_file.py` | Lädt Mindestpegel aus `data/rules.json` |
+| `clients/hochwasserzentralen.py` | LHP: `stateId`, Hochwasserklasse, `stationLink` |
+| `clients/levels/openhygon_nrw.py` | Live-Pegel NRW (`DE-NW`) via [OpenHygon](https://www.opengeodata.nrw.de/produkte/umwelt_klima/wasser/oberflaechengewaesser/hygon/) |
+| `clients/levels/pegelonline_provider.py` | Bundesweiter cm-Fallback |
+| `services/level_resolver.py` | LHP → Bundesland → Provider |
+| `clients/pegelonline.py` | PEGELONLINE REST-Client |
 | `logic/status.py` | `get_canoe_status(current, rules)` |
 | `services/database.py` | SQLite-Speicherung der Regeln |
 | `jobs/sync.py` | Manueller Sync-Job |
@@ -131,7 +132,9 @@ python -m unittest discover tests
 
 - **Kanu NRW** liefert Mindestpegel (`Soll`) für ~35 NRW-Kleinflüsse – kein Lippe/Kaunitz.
 - **PEGELONLINE** deckt Bundeswasserstraßen ab; Mapping per Stationsname.
-- **LHP** liefert keine cm-Werte, nur Hochwasserklassen (Endpoint konfigurierbar).
+- **LHP** ([Public API](https://www.hochwasserzentralen.de/developers/api-docs-stable-swagger)): Bundesland (`stateId`), Hochwasserklasse, Links — **keine cm-Werte**
+- **OpenHygon NRW** für `DE-NW`: Live-Pegel in cm; weitere Bundesländer über neue Provider unter `clients/levels/`
+- Regeln optional mit `"state": "DE-NW"`, `"external_station_id"`, `"level_provider": "openhygon"`
 - `ideal_max` / `max` werden aus Mindestpegel **heuristisch** abgeleitet, wenn keine Detailwerte vorliegen.
 
 ## Cron / Sync

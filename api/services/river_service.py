@@ -1,4 +1,4 @@
-"""Orchestriert Regeln, PEGELONLINE, LHP und Befahrbarkeitslogik."""
+"""Orchestriert Regeln, LHP, Landes-Provider und Befahrbarkeitslogik."""
 
 from __future__ import annotations
 
@@ -7,12 +7,14 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from clients.hochwasserzentralen import HochwasserZentralenClient
+from clients.levels.base import RuleKey
 from clients.pegelonline import PegelOnlineClient
 from config import settings
 from loaders.rules_file import load_rules_from_file
 from logic.status import STATUS_LABELS, apply_flood_override, get_canoe_status, status_severity
 from models.schemas import CanoeStatus, RiverListResponse, RiverRule, RiverSummary, StatusResponse
 from services.database import Database
+from services.level_resolver import LevelResolver
 
 logger = logging.getLogger(__name__)
 
@@ -22,14 +24,19 @@ class RiverService:
         self.db = Database()
         self.pegel_client = PegelOnlineClient()
         self.lhp_client = HochwasserZentralenClient()
+        self.level_resolver = LevelResolver(self.lhp_client, self.pegel_client)
         self._file_rules: list[RiverRule] | None = None
 
     def sync_all(self) -> dict:
-        """Regeln aus rules.json laden + PEGELONLINE-Mapping."""
-        result = {"rules": 0, "mapped": 0, "errors": []}
+        """Regeln laden, LHP-Bundesland zuordnen, PEGELONLINE-Mapping."""
+        result: dict = {"rules": 0, "mapped": 0, "lhp_matched": 0, "by_state": {}, "errors": []}
 
         try:
             rules = load_rules_from_file(settings.rules_path)
+            lhp_stats = self.level_resolver.enrich_rules_with_lhp(rules)
+            result["lhp_matched"] = lhp_stats.get("lhp_matched", 0)
+            result["by_state"] = lhp_stats.get("by_state", {})
+
             stations = self.pegel_client.fetch_stations(force_refresh=True)
             index = self.pegel_client.build_station_index(stations)
 
@@ -47,7 +54,11 @@ class RiverService:
             count = self.db.upsert_rules(rules)
             self.db.export_rules_json(settings.db_path.parent / "rules_fallback.json")
 
-            self.db.log_sync("rules_file", "ok", f"{count} rules, {mapped} mapped")
+            self.db.log_sync(
+                "rules_file",
+                "ok",
+                f"{count} rules, {mapped} pegelonline, {result['lhp_matched']} lhp",
+            )
             result["rules"] = count
             result["mapped"] = mapped
         except Exception as exc:
@@ -71,17 +82,13 @@ class RiverService:
             return [r for r in rules if r.river.lower() == river.lower()]
         return rules
 
-    def _current_cm(self, rule: RiverRule, stations_index: dict) -> tuple[Optional[float], str]:
-        reading = self.pegel_client.current_for(rule.river, rule.station, stations_index)
-        if reading and reading.current_cm is not None:
-            return reading.current_cm, "pegelonline"
-        return None, "unknown"
-
     def get_river_statuses(
         self,
         river: str,
         station: Optional[str] = None,
         flood_map: Optional[dict[str, str]] = None,
+        levels=None,
+        lhp_index=None,
     ) -> list[StatusResponse]:
         rules = self._load_rules(river)
         if station:
@@ -90,14 +97,26 @@ class RiverService:
         if not rules:
             return []
 
-        pegel_stations = self.pegel_client.fetch_stations()
-        stations_index = self.pegel_client.build_station_index(pegel_stations)
+        if lhp_index is None:
+            lhp_index = self.lhp_client.fetch_station_index()
         if flood_map is None:
             flood_map = self.lhp_client.fetch_flood_classes()
+        if levels is None:
+            levels = self.level_resolver.fetch_levels(rules)
 
         responses: list[StatusResponse] = []
         for rule in rules:
-            current, source = self._current_cm(rule, stations_index)
+            key = RuleKey.from_rule(rule)
+            lhp = self.lhp_client.station_for(rule.river, rule.station, lhp_index)
+            level = levels.get(key)
+
+            if level:
+                current, source = level.current_cm, level.source
+                external_id = level.external_station_id
+            else:
+                current, source = None, "unknown"
+                external_id = rule.external_station_id
+
             status = get_canoe_status(current, rule)
             flood_class = self.lhp_client.flood_class_for(rule.river, rule.station, flood_map)
             status = apply_flood_override(status, flood_class)
@@ -117,6 +136,11 @@ class RiverService:
                     source=source,
                     pegelonline_uuid=rule.pegelonline_uuid,
                     nrw_befahrbarkeit=rule.nrw_befahrbarkeit,
+                    state=rule.state or (lhp.state_id if lhp else None),
+                    flood_class=flood_class,
+                    lhp_id=rule.lhp_id or (lhp.lhp_id if lhp else None),
+                    station_link=rule.station_link or (lhp.station_link if lhp else None),
+                    external_station_id=external_id,
                 )
             )
 
@@ -128,13 +152,20 @@ class RiverService:
         for rule in rules:
             grouped.setdefault(rule.river, []).append(rule)
 
-        summaries: list[RiverSummary] = []
+        lhp_index = self.lhp_client.fetch_station_index()
         flood_map = self.lhp_client.fetch_flood_classes()
+        levels = self.level_resolver.fetch_levels(rules)
+
+        summaries: list[RiverSummary] = []
         for river, river_rules in sorted(grouped.items()):
             statuses = []
             for rule in river_rules:
                 station_statuses = self.get_river_statuses(
-                    river, rule.station, flood_map=flood_map
+                    river,
+                    rule.station,
+                    flood_map=flood_map,
+                    levels=levels,
+                    lhp_index=lhp_index,
                 )
                 if station_statuses:
                     statuses.append(station_statuses[0].status)
@@ -157,3 +188,23 @@ class RiverService:
             rivers=summaries,
             updated_at=datetime.now(timezone.utc).isoformat(),
         )
+
+    def export_all_statuses(self) -> list[StatusResponse]:
+        """Alle Messstellen-Status für pegel.json (ein LHP/OpenHygon-Abruf)."""
+        rules = self._load_rules()
+        lhp_index = self.lhp_client.fetch_station_index()
+        flood_map = self.lhp_client.fetch_flood_classes()
+        levels = self.level_resolver.fetch_levels(rules)
+
+        sections: list[StatusResponse] = []
+        for rule in rules:
+            sections.extend(
+                self.get_river_statuses(
+                    rule.river,
+                    rule.station,
+                    flood_map=flood_map,
+                    levels=levels,
+                    lhp_index=lhp_index,
+                )
+            )
+        return sections

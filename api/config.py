@@ -18,6 +18,16 @@ class Settings(BaseSettings):
     rules_file_path: str = "./data/rules.json"
     lhp_api_base_url: str = "https://api.hochwasserzentralen.de/public/v1"
 
+    openhygon_stations_url: str = (
+        "https://www.opengeodata.nrw.de/produkte/umwelt_klima/wasser/"
+        "oberflaechengewaesser/hygon/OpenHygon-Pegel-Stationen_EPSG4326.txt"
+    )
+    openhygon_current_csv_url: str = (
+        "https://www.opengeodata.nrw.de/produkte/umwelt_klima/wasser/"
+        "oberflaechengewaesser/hygon/OpenHygon-Pegel-aktuell_CSV.zip"
+    )
+    openhygon_cache_ttl: int = 600
+
     database_path: str = "./data/befahrbarkeit.db"
     sync_interval_minutes: int = 120
 
