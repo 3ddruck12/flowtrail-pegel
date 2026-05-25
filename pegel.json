@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-05-25T12:47:29.437426+00:00",
+  "updated_at": "2026-05-25T12:47:44.294631+00:00",
   "rivers": [
     {
       "river": "Agger",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Overath"
       ]
@@ -12,7 +12,7 @@
     {
       "river": "Ahr",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Müsch"
       ]
@@ -20,7 +20,7 @@
     {
       "river": "Alme",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Weine"
       ]
@@ -28,7 +28,7 @@
     {
       "river": "Bröl",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Broeleck"
       ]
@@ -36,7 +36,7 @@
     {
       "river": "Dhünn",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Manfort"
       ]
@@ -44,7 +44,7 @@
     {
       "river": "Diemel",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "unknown",
       "stations": [
         "Helmarshausen"
       ]
@@ -52,7 +52,7 @@
     {
       "river": "Dill",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Aßlar"
       ]
@@ -60,7 +60,7 @@
     {
       "river": "Eder",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Auhammer"
       ]
@@ -68,7 +68,7 @@
     {
       "river": "Emmer",
       "station_count": 1,
-      "best_status": "good",
+      "best_status": "unknown",
       "stations": [
         "Nessenberg"
       ]
@@ -76,7 +76,7 @@
     {
       "river": "Hönne",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Menden"
       ]
@@ -84,7 +84,7 @@
     {
       "river": "Kyll",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Densborn"
       ]
@@ -92,7 +92,7 @@
     {
       "river": "Lahn",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Biedenkopf"
       ]
@@ -100,7 +100,7 @@
     {
       "river": "Lenne",
       "station_count": 2,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Altena",
         "Kickenbach"
@@ -109,7 +109,7 @@
     {
       "river": "Möhne",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Belecke"
       ]
@@ -117,7 +117,7 @@
     {
       "river": "Mümling",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Michelstadt"
       ]
@@ -125,7 +125,7 @@
     {
       "river": "Nethe",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "unknown",
       "stations": [
         "Ottbergen"
       ]
@@ -133,7 +133,7 @@
     {
       "river": "Nidda",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Niederflorstadt"
       ]
@@ -141,7 +141,7 @@
     {
       "river": "Prüm",
       "station_count": 2,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Echtershausen",
         "Prümzurlay"
@@ -150,7 +150,7 @@
     {
       "river": "Ruhr",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Meschede"
       ]
@@ -158,7 +158,7 @@
     {
       "river": "Rur",
       "station_count": 2,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Dedenborn",
         "Linnich"
@@ -167,7 +167,7 @@
     {
       "river": "Sieg",
       "station_count": 2,
-      "best_status": "high",
+      "best_status": "unknown",
       "stations": [
         "Betzdorf",
         "Eitorf"
@@ -176,7 +176,7 @@
     {
       "river": "Sülz",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Hoffnungsthal"
       ]
@@ -184,7 +184,7 @@
     {
       "river": "Vicht",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Mulartshütte"
       ]
@@ -192,7 +192,7 @@
     {
       "river": "Volme",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Stephansohl"
       ]
@@ -200,7 +200,7 @@
     {
       "river": "Wenne",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "unknown",
       "stations": [
         "Wenholthausen"
       ]
@@ -216,7 +216,7 @@
     {
       "river": "Wupper",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "unknown",
       "stations": [
         "Opladen"
       ]
@@ -226,435 +226,435 @@
     {
       "river": "Agger",
       "station": "Overath",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 63.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 70.0,
       "ideal_min": 70.0,
       "ideal_max": 112.0,
       "max": 175.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28638/Overath%20(Agger%20Verband)/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Ahr",
       "station": "Müsch",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 50.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
       "max": 150.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/ahr/muesch-2",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Alme",
       "station": "Weine",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 52.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
       "max": 137.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28761/Weine/Wasserstand?period=P1D\r\n",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Bröl",
       "station": "Broeleck",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 19.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28323/Broeleck/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Dhünn",
       "station": "Manfort",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 26.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
       "max": 137.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28549/Manfort/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Diemel",
       "station": "Helmarshausen",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 196.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 165.0,
       "ideal_min": 165.0,
       "ideal_max": 264.0,
       "max": 412.5,
       "hint": "NRW: befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43404/Helmarshausen/WVorhersage?period=P7D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     },
     {
       "river": "Dill",
       "station": "Aßlar",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 49.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
       "max": 200.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42482/A%C3%9Flar/WVorhersage?period=P7D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Eder",
       "station": "Auhammer",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 68.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 70.0,
       "ideal_min": 70.0,
       "ideal_max": 112.0,
       "max": 175.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43094/Auhammer/WVorhersage?period=P7D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Emmer",
       "station": "Nessenberg",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
-      "current": 79.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 73.0,
       "ideal_min": 73.0,
       "ideal_max": 116.8,
       "max": 182.5,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28700/Schieder-Nessenberg/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     },
     {
       "river": "Hönne",
       "station": "Menden",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 28.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 65.0,
       "ideal_min": 65.0,
       "ideal_max": 104.0,
       "max": 162.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28563/Menden_Sauerland/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Kyll",
       "station": "Densborn",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 50.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 65.0,
       "ideal_min": 65.0,
       "ideal_max": 104.0,
       "max": 162.5,
       "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/mosel/densborn-2",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Lahn",
       "station": "Biedenkopf",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 32.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42156/Biedenkopf/WVorhersage?period=P7D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Lenne",
       "station": "Altena",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 37.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
       "max": 112.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28254/Altena/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Lenne",
       "station": "Kickenbach",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 92.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
       "max": 275.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28494/Kickenbach/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Möhne",
       "station": "Belecke",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 47.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
       "max": 150.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28284/Belecke_1/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Mümling",
       "station": "Michelstadt",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 54.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 70.0,
       "ideal_min": 70.0,
       "ideal_max": 112.0,
       "max": 175.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hnd.bayern.de/pegel/unterer_main/michelstadt-24742206",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Nethe",
       "station": "Ottbergen",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 121.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 115.0,
       "ideal_min": 115.0,
       "ideal_max": 184.0,
       "max": 287.5,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28637/Ottbergen/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     },
     {
       "river": "Nidda",
       "station": "Niederflorstadt",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 42.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/41877/Nieder-Florstadt/WVorhersage?period=P7D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Prüm",
       "station": "Echtershausen",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 34.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
       "max": 137.5,
       "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/mosel/echtershausen",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Prüm",
       "station": "Prümzurlay",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 35.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
       "max": 150.0,
       "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/mosel/pruemzurlay",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Ruhr",
       "station": "Meschede",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 58.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
       "max": 200.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28569/Meschede/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Rur",
       "station": "Dedenborn",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 12.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 35.0,
       "ideal_min": 35.0,
       "ideal_max": 60.0,
       "max": 95.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28339/Dedenborn/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Rur",
       "station": "Linnich",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
-      "current": 89.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 85.0,
       "ideal_min": 85.0,
       "ideal_max": 136.0,
       "max": 212.5,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28538/Linnich/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     },
     {
       "river": "Sieg",
       "station": "Betzdorf",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 58.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
       "max": 137.5,
       "hint": "NRW: befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/sieg/betzdorf",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     },
     {
       "river": "Sieg",
       "station": "Eitorf",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 55.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
       "max": 90.0,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28357/Eitorf/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     },
     {
       "river": "Sülz",
       "station": "Hoffnungsthal",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 50.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
       "max": 150.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28464/Hoffnungsthal/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Vicht",
       "station": "Mulartshütte",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 21.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28588/Mulartshuette/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Volme",
       "station": "Stephansohl",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 13.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28727/Stephansohl/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
     {
       "river": "Wenne",
       "station": "Wenholthausen",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 51.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 65.0,
       "ideal_min": 65.0,
       "ideal_max": 104.0,
       "max": 162.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28767/Wenholthausen/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar"
     },
@@ -676,15 +676,15 @@
     {
       "river": "Wupper",
       "station": "Opladen",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 57.0,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
       "max": 98.0,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/211257056/Opladen/Wasserstand?period=P1D",
-      "source": "kanu_nrw",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar"
     }

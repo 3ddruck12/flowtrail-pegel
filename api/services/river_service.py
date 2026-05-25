@@ -1,4 +1,4 @@
-"""Orchestriert Scraper, APIs und Befahrbarkeitslogik."""
+"""Orchestriert Regeln, PEGELONLINE, LHP und Befahrbarkeitslogik."""
 
 from __future__ import annotations
 
@@ -6,14 +6,12 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from cachetools import TTLCache
-
 from clients.hochwasserzentralen import HochwasserZentralenClient
-from clients.pegelonline import PegelOnlineClient, normalize_name
+from clients.pegelonline import PegelOnlineClient
 from config import settings
+from loaders.rules_file import load_rules_from_file
 from logic.status import STATUS_LABELS, apply_flood_override, get_canoe_status, status_severity
 from models.schemas import CanoeStatus, RiverListResponse, RiverRule, RiverSummary, StatusResponse
-from scrapers.kanu_nrw import KanuNrwScraper
 from services.database import Database
 
 logger = logging.getLogger(__name__)
@@ -22,62 +20,61 @@ logger = logging.getLogger(__name__)
 class RiverService:
     def __init__(self) -> None:
         self.db = Database()
-        self.nrw_scraper = KanuNrwScraper()
         self.pegel_client = PegelOnlineClient()
         self.lhp_client = HochwasserZentralenClient()
-        self._nrw_live_cache: TTLCache[str, dict] = TTLCache(maxsize=1, ttl=settings.pegel_cache_ttl)
+        self._file_rules: list[RiverRule] | None = None
 
     def sync_all(self) -> dict:
-        """Scrape + PEGELONLINE-Mapping + DB-Update."""
-        result = {"nrw_rules": 0, "mapped": 0, "errors": []}
+        """Regeln aus rules.json laden + PEGELONLINE-Mapping."""
+        result = {"rules": 0, "mapped": 0, "errors": []}
 
         try:
-            nrw_rules = self.nrw_scraper.scrape_rules()
+            rules = load_rules_from_file(settings.rules_path)
             stations = self.pegel_client.fetch_stations(force_refresh=True)
             index = self.pegel_client.build_station_index(stations)
 
             mapped = 0
-            for rule in nrw_rules:
+            for rule in rules:
+                if rule.pegelonline_uuid:
+                    mapped += 1
+                    continue
                 matched = self.pegel_client.match_station(rule.river, rule.station, index)
                 if matched:
                     rule.pegelonline_uuid = matched.get("uuid")
                     mapped += 1
 
-            count = self.db.upsert_rules(nrw_rules)
+            self._file_rules = rules
+            count = self.db.upsert_rules(rules)
             self.db.export_rules_json(settings.db_path.parent / "rules_fallback.json")
 
-            nrw_live = {normalize_name(f"{r['river']} {r['station']}"): r for r in self.nrw_scraper.scrape_live_readings()}
-            self._nrw_live_cache["live"] = nrw_live
-
-            self.db.log_sync("kanu_nrw", "ok", f"{count} rules, {mapped} mapped")
-            result["nrw_rules"] = count
+            self.db.log_sync("rules_file", "ok", f"{count} rules, {mapped} mapped")
+            result["rules"] = count
             result["mapped"] = mapped
         except Exception as exc:
             logger.exception("Sync fehlgeschlagen")
-            self.db.log_sync("kanu_nrw", "error", str(exc))
+            self.db.log_sync("rules_file", "error", str(exc))
             result["errors"].append(str(exc))
 
         return result
 
     def _load_rules(self, river: Optional[str] = None) -> list[RiverRule]:
-        rules = self.db.list_rules(river)
-        if rules:
-            return rules
+        if self._file_rules:
+            rules = self._file_rules
+        else:
+            rules = self.db.list_rules(river)
+            if not rules:
+                logger.info("Lade Regeln aus %s", settings.rules_path)
+                rules = load_rules_from_file(settings.rules_path)
+                self._file_rules = rules
 
-        # Fallback wenn DB leer: live scrapen
-        logger.warning("Keine Regeln in DB – live scrape")
-        return self.nrw_scraper.scrape_rules()
+        if river:
+            return [r for r in rules if r.river.lower() == river.lower()]
+        return rules
 
-    def _current_cm(self, rule: RiverRule, stations_index: dict, nrw_live: dict) -> tuple[Optional[float], str]:
+    def _current_cm(self, rule: RiverRule, stations_index: dict) -> tuple[Optional[float], str]:
         reading = self.pegel_client.current_for(rule.river, rule.station, stations_index)
         if reading and reading.current_cm is not None:
             return reading.current_cm, "pegelonline"
-
-        key = normalize_name(f"{rule.river} {rule.station}")
-        live = nrw_live.get(key)
-        if live and live.get("current_cm") is not None:
-            return live["current_cm"], "kanu_nrw"
-
         return None, "unknown"
 
     def get_river_statuses(
@@ -87,7 +84,6 @@ class RiverService:
         flood_map: Optional[dict[str, str]] = None,
     ) -> list[StatusResponse]:
         rules = self._load_rules(river)
-        rules = [r for r in rules if r.river.lower() == river.lower()]
         if station:
             rules = [r for r in rules if r.station.lower() == station.lower()]
 
@@ -99,15 +95,9 @@ class RiverService:
         if flood_map is None:
             flood_map = self.lhp_client.fetch_flood_classes()
 
-        if "live" not in self._nrw_live_cache:
-            self._nrw_live_cache["live"] = {
-                normalize_name(f"{r['river']} {r['station']}"): r for r in self.nrw_scraper.scrape_live_readings()
-            }
-        nrw_live = self._nrw_live_cache["live"]
-
         responses: list[StatusResponse] = []
         for rule in rules:
-            current, source = self._current_cm(rule, stations_index, nrw_live)
+            current, source = self._current_cm(rule, stations_index)
             status = get_canoe_status(current, rule)
             flood_class = self.lhp_client.flood_class_for(rule.river, rule.station, flood_map)
             status = apply_flood_override(status, flood_class)

@@ -8,7 +8,7 @@
     "max": 175.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28638/Overath%20(Agger%20Verband)/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -20,7 +20,7 @@
     "max": 150.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/ahr/muesch-2",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -32,7 +32,7 @@
     "max": 137.5,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28761/Weine/Wasserstand?period=P1D\r\n",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -44,7 +44,7 @@
     "max": 125.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28323/Broeleck/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -56,7 +56,7 @@
     "max": 137.5,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28549/Manfort/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -68,7 +68,7 @@
     "max": 412.5,
     "hint": "NRW: befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43404/Helmarshausen/WVorhersage?period=P7D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -80,7 +80,7 @@
     "max": 200.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42482/A%C3%9Flar/WVorhersage?period=P7D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -92,7 +92,7 @@
     "max": 175.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43094/Auhammer/WVorhersage?period=P7D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -104,7 +104,7 @@
     "max": 182.5,
     "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28700/Schieder-Nessenberg/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -116,7 +116,7 @@
     "max": 162.5,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28563/Menden_Sauerland/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -128,7 +128,7 @@
     "max": 162.5,
     "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/mosel/densborn-2",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -140,7 +140,7 @@
     "max": 125.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42156/Biedenkopf/WVorhersage?period=P7D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -152,7 +152,7 @@
     "max": 112.5,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28254/Altena/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -164,7 +164,7 @@
     "max": 275.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28494/Kickenbach/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -176,7 +176,7 @@
     "max": 150.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28284/Belecke_1/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -188,7 +188,7 @@
     "max": 175.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hnd.bayern.de/pegel/unterer_main/michelstadt-24742206",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -200,7 +200,7 @@
     "max": 287.5,
     "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28637/Ottbergen/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -212,7 +212,7 @@
     "max": 125.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/41877/Nieder-Florstadt/WVorhersage?period=P7D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -224,7 +224,7 @@
     "max": 137.5,
     "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/mosel/echtershausen",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -236,7 +236,7 @@
     "max": 150.0,
     "hint": "NRW: nicht befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/mosel/pruemzurlay",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -248,7 +248,7 @@
     "max": 200.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28569/Meschede/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -260,7 +260,7 @@
     "max": 95.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28339/Dedenborn/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -272,7 +272,7 @@
     "max": 212.5,
     "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28538/Linnich/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -284,7 +284,7 @@
     "max": 137.5,
     "hint": "NRW: befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/sieg/betzdorf",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -296,7 +296,7 @@
     "max": 90.0,
     "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28357/Eitorf/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -308,7 +308,7 @@
     "max": 150.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28464/Hoffnungsthal/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -320,7 +320,7 @@
     "max": 125.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28588/Mulartshuette/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -332,7 +332,7 @@
     "max": 125.0,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28727/Stephansohl/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -344,7 +344,7 @@
     "max": 162.5,
     "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28767/Wenholthausen/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "nicht befahrbar"
   },
   {
@@ -356,7 +356,7 @@
     "max": 137.5,
     "hint": "NRW: befahrbar | Link: https://www.hochwasser.rlp.de/flussgebiet/wied/friedrichsthal",
     "pegelonline_uuid": "314945d6-b499-40cf-bb21-d76cf4547e3a",
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   },
   {
@@ -368,7 +368,7 @@
     "max": 98.0,
     "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/211257056/Opladen/Wasserstand?period=P1D",
     "pegelonline_uuid": null,
-    "source": "kanu_nrw",
+    "source": "flowtrail_rules",
     "nrw_befahrbarkeit": "befahrbar"
   }
 ]

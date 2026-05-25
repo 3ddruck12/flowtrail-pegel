@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     pegelonline_base_url: str = "https://www.pegelonline.wsv.de/webservices/rest-api/v2"
     kanu_nrw_pegel_url: str = "https://sites.kanu-nrw.de/pegel.php"
+    rules_file_path: str = "./data/rules.json"
     lhp_api_base_url: str = "https://api.hochwasserzentralen.de/public/v1"
 
     database_path: str = "./data/befahrbarkeit.db"
@@ -25,6 +26,10 @@ class Settings(BaseSettings):
         path = Path(self.database_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
+
+    @property
+    def rules_path(self) -> Path:
+        return Path(self.rules_file_path)
 
 
 settings = Settings()

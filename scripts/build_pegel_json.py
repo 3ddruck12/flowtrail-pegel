@@ -41,7 +41,7 @@ def main() -> None:
     manifest = {
         "version": version,
         "updatedAt": now.isoformat(),
-        "label": "NRW Befahrbarkeit (Kanu-NRW + PEGELONLINE + LHP)",
+        "label": "NRW Befahrbarkeit (rules.json + PEGELONLINE + LHP)",
         "dataUrl": DATA_URL,
     }
 

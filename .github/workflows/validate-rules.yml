@@ -1,0 +1,35 @@
+name: validate-rules
+
+on:
+  push:
+    paths:
+      - "data/rules.json"
+  pull_request:
+    paths:
+      - "data/rules.json"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate rules.json
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          raw = json.loads(Path('data/rules.json').read_text(encoding='utf-8'))
+          rules = raw['rules'] if isinstance(raw, dict) else raw
+          assert len(rules) >= 1
+          for i, r in enumerate(rules):
+              assert r.get('river'), f'rule {i}: river fehlt'
+              assert r.get('station'), f'rule {i}: station fehlt'
+              assert r.get('min_cm') is not None or r.get('min') is not None, f'rule {i}: min_cm fehlt'
+          print('OK:', len(rules), 'rules')
+          "
