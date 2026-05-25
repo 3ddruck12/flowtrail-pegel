@@ -1,0 +1,47 @@
+name: update-pegel
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Build pegel.json
+        run: python scripts/build_pegel_json.py
+
+      - name: Validate output
+        run: |
+          python -c "
+          import json
+          m = json.load(open('manifest.json'))
+          p = json.load(open('pegel.json'))
+          assert m.get('dataUrl')
+          assert len(p.get('rivers', [])) > 0
+          assert len(p.get('sections', [])) > 0
+          print('OK:', len(p['rivers']), 'rivers,', len(p['sections']), 'sections')
+          "
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json pegel.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "chore: pegel update $(date -u +%Y-%m-%dT%H:%M)"
+          git push

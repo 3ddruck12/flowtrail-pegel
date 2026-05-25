@@ -1,0 +1,6 @@
+{
+  "version": "2026-05-25T12",
+  "updatedAt": "2026-05-25T12:26:47.840135+00:00",
+  "label": "NRW Befahrbarkeit (Kanu-NRW + PEGELONLINE)",
+  "dataUrl": "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/pegel.json"
+}
