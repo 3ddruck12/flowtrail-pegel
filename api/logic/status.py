@@ -57,7 +57,7 @@ def apply_flood_override(status: CanoeStatus, flood_class: Optional[str]) -> Can
         return status
 
     normalized = flood_class.lower()
-    if any(term in normalized for term in ("extrem", "außergewöhnlich", "exceptional", "red")):
+    if any(term in normalized for term in ("extrem", "außergewöhnlich", "exceptional", "sehr groß")):
         return CanoeStatus.DANGER
     if any(term in normalized for term in ("hoch", "high", "orange", "gelb", "yellow", "warn")):
         if status in (CanoeStatus.GOOD, CanoeStatus.OK):

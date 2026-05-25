@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-25T12:32:28.396594+00:00",
+  "updated_at": "2026-05-25T12:38:06.697936+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -44,7 +44,7 @@
     {
       "river": "Diemel",
       "station_count": 1,
-      "best_status": "good",
+      "best_status": "high",
       "stations": [
         "Helmarshausen"
       ]
@@ -125,7 +125,7 @@
     {
       "river": "Nethe",
       "station_count": 1,
-      "best_status": "good",
+      "best_status": "high",
       "stations": [
         "Ottbergen"
       ]
@@ -167,7 +167,7 @@
     {
       "river": "Sieg",
       "station_count": 2,
-      "best_status": "good",
+      "best_status": "high",
       "stations": [
         "Betzdorf",
         "Eitorf"
@@ -216,7 +216,7 @@
     {
       "river": "Wupper",
       "station_count": 1,
-      "best_status": "good",
+      "best_status": "high",
       "stations": [
         "Opladen"
       ]
@@ -301,8 +301,8 @@
     {
       "river": "Diemel",
       "station": "Helmarshausen",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
       "current": 196.0,
       "min": 165.0,
       "ideal_min": 165.0,
@@ -466,8 +466,8 @@
     {
       "river": "Nethe",
       "station": "Ottbergen",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
       "current": 121.0,
       "min": 115.0,
       "ideal_min": 115.0,
@@ -571,8 +571,8 @@
     {
       "river": "Sieg",
       "station": "Betzdorf",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
       "current": 58.0,
       "min": 55.0,
       "ideal_min": 55.0,
@@ -586,8 +586,8 @@
     {
       "river": "Sieg",
       "station": "Eitorf",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
       "current": 55.0,
       "min": 30.0,
       "ideal_min": 30.0,
@@ -676,8 +676,8 @@
     {
       "river": "Wupper",
       "station": "Opladen",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
       "current": 57.0,
       "min": 38.0,
       "ideal_min": 38.0,

@@ -80,7 +80,12 @@ class RiverService:
 
         return None, "unknown"
 
-    def get_river_statuses(self, river: str, station: Optional[str] = None) -> list[StatusResponse]:
+    def get_river_statuses(
+        self,
+        river: str,
+        station: Optional[str] = None,
+        flood_map: Optional[dict[str, str]] = None,
+    ) -> list[StatusResponse]:
         rules = self._load_rules(river)
         rules = [r for r in rules if r.river.lower() == river.lower()]
         if station:
@@ -91,7 +96,8 @@ class RiverService:
 
         pegel_stations = self.pegel_client.fetch_stations()
         stations_index = self.pegel_client.build_station_index(pegel_stations)
-        flood_map = self.lhp_client.fetch_flood_classes()
+        if flood_map is None:
+            flood_map = self.lhp_client.fetch_flood_classes()
 
         if "live" not in self._nrw_live_cache:
             self._nrw_live_cache["live"] = {
@@ -133,10 +139,13 @@ class RiverService:
             grouped.setdefault(rule.river, []).append(rule)
 
         summaries: list[RiverSummary] = []
+        flood_map = self.lhp_client.fetch_flood_classes()
         for river, river_rules in sorted(grouped.items()):
             statuses = []
             for rule in river_rules:
-                station_statuses = self.get_river_statuses(river, rule.station)
+                station_statuses = self.get_river_statuses(
+                    river, rule.station, flood_map=flood_map
+                )
                 if station_statuses:
                     statuses.append(station_statuses[0].status)
 

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     pegelonline_base_url: str = "https://www.pegelonline.wsv.de/webservices/rest-api/v2"
     kanu_nrw_pegel_url: str = "https://sites.kanu-nrw.de/pegel.php"
-    lhp_api_base_url: str = "https://www.hochwasserzentralen.de/lhp/public-api/v1"
+    lhp_api_base_url: str = "https://api.hochwasserzentralen.de/public/v1"
 
     database_path: str = "./data/befahrbarkeit.db"
     sync_interval_minutes: int = 120
