@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowTrail Gewässer-Editor</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="toolbar">
+    <h1>FlowTrail Gewässer-Editor</h1>
+    <div class="toolbar-actions">
+      <label class="toggle">
+        <input type="checkbox" id="osmFileToggle" />
+        OSM-Import anzeigen
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="osmLiveToggle" />
+        OSM-Live (Overpass)
+      </label>
+      <button type="button" class="btn secondary" id="btnDraw">Fluss zeichnen</button>
+      <button type="button" class="btn secondary" id="btnTrim">Stutzen</button>
+      <button type="button" class="btn primary" id="btnExport">Community exportieren</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div id="map"></div>
+    <aside class="sidebar hidden" id="sidebar">
+      <h2 id="sidebarTitle">Gewässer bearbeiten</h2>
+      <form id="waterwayForm">
+        <input type="hidden" id="featureIndex" value="-1" />
+        <label>
+          Name
+          <input type="text" id="wwName" required />
+        </label>
+        <label>
+          Fluss
+          <input type="text" id="wwRiver" placeholder="z. B. Lenne" />
+        </label>
+        <label>
+          Gewässertyp
+          <select id="wwType">
+            <option value="river">Fluss (river)</option>
+            <option value="stream">Bach (stream)</option>
+            <option value="canal">Kanal (canal)</option>
+          </select>
+        </label>
+        <label id="replacesRow" class="hidden">
+          Ersetzt OSM-IDs (kommagetrennt)
+          <input type="text" id="wwReplacesOsm" readonly />
+        </label>
+        <label>
+          Feature-ID
+          <input type="text" id="wwId" />
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Speichern</button>
+          <button type="button" class="btn danger" id="btnDelete">Löschen</button>
+          <button type="button" class="btn secondary" id="btnClose">Schließen</button>
+        </div>
+      </form>
+    </aside>
+  </div>
+
+  <footer class="status" id="statusBar">Lade …</footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.min.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

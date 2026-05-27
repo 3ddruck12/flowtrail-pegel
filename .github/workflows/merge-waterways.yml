@@ -1,0 +1,45 @@
+name: merge-waterways
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "community-waterways.geojson"
+      - "osm-waterways.geojson"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Merge waterways
+        run: python scripts/merge_waterways.py
+
+      - name: Validate merged output
+        run: |
+          python -c "
+          import json
+          w = json.load(open('waterways.geojson'))
+          m = json.load(open('waterways-manifest.json'))
+          assert w.get('type') == 'FeatureCollection'
+          assert m.get('dataUrl')
+          print('OK:', len(w.get('features', [])), 'waterway features')
+          "
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add waterways.geojson waterways-manifest.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "chore: merge waterways $(date -u +%Y-%m-%dT%H:%M)"
+          git push

@@ -1,0 +1,73 @@
+name: validate-waterways
+
+on:
+  push:
+    paths:
+      - "community-waterways.geojson"
+      - "osm-waterways.geojson"
+      - "waterways.geojson"
+      - "waterways-manifest.json"
+  pull_request:
+    paths:
+      - "community-waterways.geojson"
+      - "osm-waterways.geojson"
+      - "waterways.geojson"
+      - "waterways-manifest.json"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate GeoJSON waterways
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+
+          LINE_TYPES = {'LineString', 'MultiLineString'}
+
+          def validate_file(path: Path) -> int:
+              if not path.exists():
+                  print(f'SKIP (missing): {path.name}')
+                  return 0
+              data = json.loads(path.read_text(encoding='utf-8'))
+              assert data.get('type') == 'FeatureCollection', f'{path.name}: not FeatureCollection'
+              features = data.get('features') or []
+              ids: set[str] = set()
+              for i, f in enumerate(features):
+                  assert f.get('type') == 'Feature', f'{path.name}[{i}]: not Feature'
+                  geom = f.get('geometry') or {}
+                  assert geom.get('type') in LINE_TYPES, f'{path.name}[{i}]: invalid geometry'
+                  coords = geom.get('coordinates') or []
+                  assert coords, f'{path.name}[{i}]: empty coordinates'
+                  props = f.get('properties') or {}
+                  fid = props.get('id') or props.get('osm_id') or f'{path.stem}-{i}'
+                  assert fid not in ids, f'{path.name}[{i}]: duplicate id {fid}'
+                  ids.add(str(fid))
+              print(f'OK: {path.name} — {len(features)} features')
+              return len(features)
+
+          total = 0
+          for name in (
+              'community-waterways.geojson',
+              'osm-waterways.geojson',
+              'waterways.geojson',
+          ):
+              total += validate_file(Path(name))
+
+          manifest = Path('waterways-manifest.json')
+          if manifest.exists():
+              m = json.loads(manifest.read_text(encoding='utf-8'))
+              assert m.get('dataUrl'), 'waterways-manifest.json: dataUrl fehlt'
+              assert m.get('version'), 'waterways-manifest.json: version fehlt'
+              print('OK: waterways-manifest.json')
+
+          print('Validated', total, 'features total')
+          "

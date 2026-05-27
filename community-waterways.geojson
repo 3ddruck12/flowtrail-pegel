@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "name": "FlowTrail Community Waterways",
+    "description": "Von Maintainers gepflegte Kanu-Gewässerlinien.",
+    "version": "2026-05-27T00"
+  },
+  "features": []
+}

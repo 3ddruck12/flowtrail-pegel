@@ -12,6 +12,40 @@ Statischer Befahrbarkeits-Datensatz für die [FlowTrail](https://github.com/3ddr
 | `scripts/build_pegel_json.py` | Export-Skript (GitHub Actions) |
 | `api/clients/levels/` | Erweiterbare Landes-Provider (aktuell: OpenHygon NRW) |
 
+## Gewässer-Feed (Flussläufe)
+
+Statische GeoJSON-Linien als Alternative zur langsamen Overpass-API in der App (Phase 2).
+
+| Datei | Zweck |
+|-------|-------|
+| [`community-waterways.geojson`](community-waterways.geojson) | Manuell gepflegte/korrigierte Gewässerlinien |
+| [`osm-waterways.geojson`](osm-waterways.geojson) | OSM-Import (Flüsse + Kanäle, pro Region) |
+| [`waterways.geojson`](waterways.geojson) | **Generierter App-Feed** (Merge, nicht manuell editieren) |
+| [`waterways-manifest.json`](waterways-manifest.json) | Version, Label, URL für spätere App-Integration |
+| [`editor/`](editor/) | Web-Editor (GitHub Pages) |
+| `scripts/import_osm_waterways.py` | OSM → `osm-waterways.geojson` |
+| `scripts/merge_waterways.py` | Community + OSM → `waterways.geojson` |
+
+**Editor:** [3ddruck12.github.io/flowtrail-pegel](https://3ddruck12.github.io/flowtrail-pegel/) (nach Push + Pages-Aktivierung)
+
+### Gewässer bearbeiten
+
+1. Editor öffnen → Fluss zeichnen, stutzen, OSM-Linie übernehmen
+2. **Community exportieren** → `community-waterways.geojson` ins Repo committen
+3. Action `merge-waterways` baut automatisch `waterways.geojson`
+
+OSM-Basis aktualisieren: Actions → **import-osm-waterways** → Region `nw` oder `de`.
+
+Import filtert auf `waterway=river` und `waterway=canal` (keine Gräben/Bäche) — kleineres, kanu-relevanteres Dataset.
+
+### Phase 2 (App)
+
+- `waterways-manifest.json` in Kanuapp laden statt Overpass-Overlay
+- Einmal-Download + Viewport-Filter (deutlich schneller als Live-API)
+- Pegel-Marker auf Flusslinien snappen (`lat`/`river_km` in `rules.json`)
+
+---
+
 ## Regeln bearbeiten
 
 `data/rules.json` anpassen — Beispiel:
