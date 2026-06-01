@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-31T17:24:02.746409+00:00",
+  "updated_at": "2026-06-01T06:40:21.238526+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -20,7 +20,7 @@
     {
       "river": "Alme",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "high",
       "stations": [
         "Weine"
       ]
@@ -125,7 +125,7 @@
     {
       "river": "Nethe",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "danger",
       "stations": [
         "Ottbergen"
       ]
@@ -266,9 +266,9 @@
     {
       "river": "Alme",
       "station": "Weine",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 44.8,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 65.5,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -288,7 +288,7 @@
       "station": "Broeleck",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 18.6,
+      "current": 19.9,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -308,7 +308,7 @@
       "station": "Manfort",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 23.6,
+      "current": 23.9,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -338,7 +338,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
       "state": "DE-HE",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "HE_44950055",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43404/Helmarshausen?period=P7D",
       "external_station_id": null
@@ -468,7 +468,7 @@
       "station": "Altena",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 32.0,
+      "current": 41.7,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
@@ -488,7 +488,7 @@
       "station": "Kickenbach",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 85.3,
+      "current": 89.0,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
@@ -546,9 +546,9 @@
     {
       "river": "Nethe",
       "station": "Ottbergen",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 114.5,
+      "status": "danger",
+      "label": "⛔ Gefährlich (Hochwasser)",
+      "current": 218.3,
       "min": 115.0,
       "ideal_min": 115.0,
       "ideal_max": 184.0,
@@ -628,7 +628,7 @@
       "station": "Meschede",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 54.0,
+      "current": 62.4,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
@@ -708,7 +708,7 @@
       "station": "Eitorf",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 51.7,
+      "current": 45.1,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
@@ -728,7 +728,7 @@
       "station": "Hoffnungsthal",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 42.5,
+      "current": 40.0,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
@@ -768,7 +768,7 @@
       "station": "Stephansohl",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 11.1,
+      "current": 11.4,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -828,7 +828,7 @@
       "station": "Opladen",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 54.8,
+      "current": 59.3,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
