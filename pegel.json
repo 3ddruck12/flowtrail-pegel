@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-01T18:54:41.949842+00:00",
+  "updated_at": "2026-06-02T06:35:56.287484+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -20,7 +20,7 @@
     {
       "river": "Alme",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "too_low",
       "stations": [
         "Weine"
       ]
@@ -125,7 +125,7 @@
     {
       "river": "Nethe",
       "station_count": 1,
-      "best_status": "danger",
+      "best_status": "high",
       "stations": [
         "Ottbergen"
       ]
@@ -266,9 +266,9 @@
     {
       "river": "Alme",
       "station": "Weine",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 65.5,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 51.1,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -288,7 +288,7 @@
       "station": "Broeleck",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 19.9,
+      "current": 17.8,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -308,7 +308,7 @@
       "station": "Manfort",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 23.9,
+      "current": 23.1,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -468,7 +468,7 @@
       "station": "Altena",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 41.7,
+      "current": 16.6,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
@@ -488,7 +488,7 @@
       "station": "Kickenbach",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 89.0,
+      "current": 84.7,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
@@ -546,9 +546,9 @@
     {
       "river": "Nethe",
       "station": "Ottbergen",
-      "status": "danger",
-      "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 218.3,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 144.7,
       "min": 115.0,
       "ideal_min": 115.0,
       "ideal_max": 184.0,
@@ -628,7 +628,7 @@
       "station": "Meschede",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 62.4,
+      "current": 47.3,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
@@ -708,7 +708,7 @@
       "station": "Eitorf",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 45.1,
+      "current": 41.8,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
@@ -728,7 +728,7 @@
       "station": "Hoffnungsthal",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 40.0,
+      "current": 41.9,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
@@ -768,7 +768,7 @@
       "station": "Stephansohl",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 11.4,
+      "current": 10.6,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 525.0,
+      "current": 519.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -828,7 +828,7 @@
       "station": "Opladen",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 59.3,
+      "current": 41.9,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
