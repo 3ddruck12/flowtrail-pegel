@@ -70,6 +70,26 @@
             <option value="canal">Kanal (canal)</option>
           </select>
         </label>
+        <label class="toggle">
+          <input type="checkbox" id="wwNavigable" checked />
+          Befahrbar (Linie blau)
+        </label>
+        <p class="sidebar-hint">Deaktivieren = gesperrt / nicht befahrbar (rot, gestrichelt)</p>
+        <label>
+          Fahrtrichtung
+          <select id="wwFlow">
+            <option value="with_coords">Mit Linienverlauf (Start → Ende)</option>
+            <option value="reverse_coords">Entgegen Linienverlauf</option>
+          </select>
+        </label>
+        <label>
+          Stromaufwärts / Start
+          <span id="wwUpstreamLabel" class="sidebar-meta">nicht gesetzt</span>
+        </label>
+        <div class="form-actions">
+          <button type="button" class="btn secondary" id="btnSetUpstream">Beginn auf Karte setzen</button>
+          <button type="button" class="btn secondary" id="btnClearUpstream">Beginn löschen</button>
+        </div>
         <label id="replacesRow" class="hidden">
           Ersetzt OSM-IDs (kommagetrennt)
           <input type="text" id="wwReplacesOsm" readonly />

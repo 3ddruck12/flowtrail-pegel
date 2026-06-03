@@ -46,6 +46,7 @@
   var trimMode = false;
   var trimPoints = [];
   var trimTargetIndex = -1;
+  var upstreamPickMode = false;
   var communityLayersByIndex = {};
 
   var statusBar = document.getElementById("statusBar");
@@ -129,13 +130,90 @@
     };
   }
 
+  function isNavigable(props) {
+    if (!props) return true;
+    if (props.navigable === false) return false;
+    var r = (props.restriction || "").toLowerCase();
+    return r !== "no_canoe" && r !== "no_paddle" && r !== "closed" && r !== "gesperrt";
+  }
+
   function communityStyle(props) {
+    var ok = isNavigable(props);
     return {
-      color: "#0284c7",
-      weight: 4,
+      color: ok ? "#0284c7" : "#dc2626",
+      weight: ok ? 4 : 5,
       opacity: 0.9,
+      dashArray: ok ? null : "10 8",
       className: "community-waterway"
     };
+  }
+
+  function linePoints(feature) {
+    var g = feature.geometry;
+    if (g.type === "LineString") return coordsToLatLngs(g.coordinates);
+    if (g.type === "MultiLineString" && g.coordinates[0]) {
+      return coordsToLatLngs(g.coordinates[0]);
+    }
+    return [];
+  }
+
+  function orderedLineLatLngs(feature) {
+    var pts = linePoints(feature);
+    if (pts.length < 2) return pts;
+    var props = feature.properties || {};
+    var up = props.upstream_node;
+    if (!up || up.length < 2) {
+      return props.flow_direction === "reverse_coords" ? pts.slice().reverse() : pts;
+    }
+    var upLl = L.latLng(up[1], up[0]);
+    var reverseByUp = upLl.distanceTo(pts[0]) > upLl.distanceTo(pts[pts.length - 1]);
+    var reverseByFlow = props.flow_direction === "reverse_coords";
+    if (reverseByUp !== reverseByFlow) return pts.slice().reverse();
+    return pts;
+  }
+
+  function arrowLatLng(feature) {
+    var pts = orderedLineLatLngs(feature);
+    if (pts.length < 2) return null;
+    var idx = Math.min(pts.length - 1, Math.max(1, Math.floor(pts.length * 0.72)));
+    return pts[idx];
+  }
+
+  function arrowBearing(from, to) {
+    var y = Math.sin((to.lng - from.lng) * Math.PI / 180) * Math.cos(to.lat * Math.PI / 180);
+    var x =
+      Math.cos(from.lat * Math.PI / 180) * Math.sin(to.lat * Math.PI / 180) -
+      Math.sin(from.lat * Math.PI / 180) * Math.cos(to.lat * Math.PI / 180) *
+      Math.cos((to.lng - from.lng) * Math.PI / 180);
+    return (Math.atan2(y, x) * 180) / Math.PI;
+  }
+
+  function addDirectionDecorations(feature, layerGroup) {
+    var props = feature.properties || {};
+    var ordered = orderedLineLatLngs(feature);
+    if (ordered.length < 2) return;
+
+    if (props.upstream_node && props.upstream_node.length >= 2) {
+      L.marker([props.upstream_node[1], props.upstream_node[0]], {
+        icon: L.divIcon({ className: "", html: '<div class="upstream-pin"></div>', iconSize: [12, 12], iconAnchor: [6, 6] }),
+        interactive: false
+      }).addTo(layerGroup);
+    }
+
+    var arrow = arrowLatLng(feature);
+    if (!arrow) return;
+    var idx = Math.min(ordered.length - 1, Math.max(1, Math.floor(ordered.length * 0.72)));
+    var prev = ordered[idx - 1];
+    var deg = arrowBearing(prev, arrow);
+    L.marker(arrow, {
+      icon: L.divIcon({
+        className: "",
+        html: '<div class="waterway-arrow-marker" style="transform:rotate(' + deg + 'deg)">▶</div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      }),
+      interactive: false
+    }).addTo(layerGroup);
   }
 
   function osmStyle() {
@@ -205,6 +283,7 @@
 
       layer.addTo(communityLayer);
       communityLayersByIndex[index] = layer;
+      addDirectionDecorations(feature, communityLayer);
     });
 
     updateStatusCounts();
@@ -279,6 +358,14 @@
     document.getElementById("wwRiver").value = props.river || "";
     document.getElementById("wwType").value = props.waterway || "river";
     document.getElementById("wwId").value = props.id || "";
+    document.getElementById("wwNavigable").checked = isNavigable(props);
+    document.getElementById("wwFlow").value =
+      props.flow_direction === "reverse_coords" ? "reverse_coords" : "with_coords";
+    var up = props.upstream_node;
+    document.getElementById("wwUpstreamLabel").textContent =
+      up && up.length >= 2
+        ? up[1].toFixed(5) + ", " + up[0].toFixed(5)
+        : "nicht gesetzt (Pfeil folgt Linienrichtung)";
     var replaces = props.replaces_osm_ids || [];
     if (typeof replaces === "string") replaces = replaces ? [replaces] : [];
     document.getElementById("wwReplacesOsm").value = replaces.join(", ");
@@ -293,6 +380,8 @@
     sidebar.classList.add("hidden");
     document.getElementById("featureIndex").value = "-1";
     trimTargetIndex = -1;
+    upstreamPickMode = false;
+    document.getElementById("btnSetUpstream").classList.remove("active");
   }
 
   function adoptOsmFeature(osmFeature) {
@@ -304,7 +393,9 @@
       river: props.river || "",
       waterway: props.waterway || "river",
       source: "community",
-      replaces_osm_ids: props.osm_id ? [props.osm_id] : []
+      replaces_osm_ids: props.osm_id ? [props.osm_id] : [],
+      navigable: true,
+      flow_direction: "with_coords"
     };
     communityFeatures.push(copy);
     redrawCommunity();
@@ -366,6 +457,13 @@
     props.waterway = document.getElementById("wwType").value;
     props.id = document.getElementById("wwId").value.trim() || newFeatureId(props.river);
     props.source = "community";
+    props.navigable = document.getElementById("wwNavigable").checked;
+    props.flow_direction = document.getElementById("wwFlow").value;
+    if (!props.navigable) {
+      props.restriction = "no_canoe";
+    } else {
+      delete props.restriction;
+    }
     redrawCommunity();
     closeSidebar();
     setStatus("Gespeichert (lokal). Export nicht vergessen!");
@@ -384,10 +482,38 @@
 
   document.getElementById("btnClose").addEventListener("click", closeSidebar);
 
+  document.getElementById("btnSetUpstream").addEventListener("click", function () {
+    var index = parseInt(document.getElementById("featureIndex").value, 10);
+    if (index < 0) {
+      setStatus("Zuerst eine Community-Linie auswählen.");
+      return;
+    }
+    upstreamPickMode = !upstreamPickMode;
+    trimMode = false;
+    document.getElementById("btnSetUpstream").classList.toggle("active", upstreamPickMode);
+    document.getElementById("btnTrim").classList.remove("active");
+    setStatus(
+      upstreamPickMode
+        ? "Klicke auf die Karte: Startpunkt / stromaufwärts (grüner Punkt)."
+        : "Setzen des Beginns abgebrochen."
+    );
+  });
+
+  document.getElementById("btnClearUpstream").addEventListener("click", function () {
+    var index = parseInt(document.getElementById("featureIndex").value, 10);
+    if (index < 0 || !communityFeatures[index]) return;
+    delete communityFeatures[index].properties.upstream_node;
+    document.getElementById("wwUpstreamLabel").textContent = "nicht gesetzt";
+    redrawCommunity();
+    setStatus("Beginn entfernt.");
+  });
+
   document.getElementById("btnDraw").addEventListener("click", function () {
     trimMode = false;
+    upstreamPickMode = false;
     trimPoints = [];
     document.getElementById("btnTrim").classList.remove("active");
+    document.getElementById("btnSetUpstream").classList.remove("active");
     map.pm.enableDraw("Line", {
       snappable: true,
       snapDistance: 20,
@@ -398,8 +524,10 @@
 
   document.getElementById("btnTrim").addEventListener("click", function () {
     trimMode = !trimMode;
+    upstreamPickMode = false;
     trimPoints = [];
     document.getElementById("btnTrim").classList.toggle("active", trimMode);
+    document.getElementById("btnSetUpstream").classList.remove("active");
     map.pm.disableDraw();
     setStatus(
       trimMode
@@ -542,7 +670,9 @@
       river: "",
       waterway: "river",
       source: "community",
-      replaces_osm_ids: []
+      replaces_osm_ids: [],
+      navigable: true,
+      flow_direction: "with_coords"
     });
     communityFeatures.push(feature);
     redrawCommunity();
@@ -661,6 +791,20 @@
         setStatus("OSM-Import-Layer: " + err.message + " (noch nicht importiert?)");
       });
   }
+
+  map.on("click", function (e) {
+    if (!upstreamPickMode) return;
+    var index = parseInt(document.getElementById("featureIndex").value, 10);
+    if (index < 0 || !communityFeatures[index]) return;
+    communityFeatures[index].properties.upstream_node = [e.latlng.lng, e.latlng.lat];
+    upstreamPickMode = false;
+    document.getElementById("btnSetUpstream").classList.remove("active");
+    document.getElementById("wwUpstreamLabel").textContent =
+      e.latlng.lat.toFixed(5) + ", " + e.latlng.lng.toFixed(5);
+    redrawCommunity();
+    openEditor(index);
+    setStatus("Beginn gesetzt. Pfeil zeigt Fahrtrichtung ab hier.");
+  });
 
   loadCommunity().catch(function (err) {
     setStatus("Fehler beim Laden: " + err.message);

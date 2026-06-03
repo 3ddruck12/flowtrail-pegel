@@ -31,6 +31,8 @@ Statische GeoJSON-Linien als Alternative zur langsamen Overpass-API in der App (
 ### Gewässer bearbeiten
 
 1. [Editor](https://3ddruck12.github.io/flowtrail-pegel/) öffnen → Fluss zeichnen, stutzen, OSM übernehmen
+   - **Befahrbar** (Checkbox): aus = gesperrte Strecke (rot)
+   - **Beginn auf Karte setzen** + Fahrtrichtung → Pfeil in App
 2. **Token** (einmalig): GitHub fine-grained PAT mit *Contents: Read and write* für dieses Repo
 3. **In Repo speichern** → committet `community-waterways.geojson` direkt (ohne Download)
 4. Action `merge-waterways` baut `waterways.geojson` + aktualisiert `waterways-manifest.json` (~1 Min.)
