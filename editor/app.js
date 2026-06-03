@@ -2,10 +2,9 @@
   "use strict";
 
   var REPO = "3ddruck12/flowtrail-pegel";
-  var REPO_OWNER = "3ddruck12";
-  var REPO_NAME = "flowtrail-pegel";
   var BRANCH = "main";
   var COMMUNITY_PATH = "community-waterways.geojson";
+  var GUIDES_PATH = "river-guides.json";
   var TOKEN_KEY = "flowtrail_github_token";
   var RAW_BASE = "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/";
   var API_BASE = "https://api.github.com/repos/" + REPO;
@@ -40,6 +39,7 @@
   var osmLiveLayer = L.layerGroup().addTo(map);
 
   var communityFeatures = [];
+  var riverGuides = { version: "", label: "", rivers: [] };
   var osmFileFeatures = [];
   var osmLiveFeatures = [];
   var osmFileLoaded = false;
@@ -47,11 +47,13 @@
   var trimPoints = [];
   var trimTargetIndex = -1;
   var upstreamPickMode = false;
-  var communityLayersByIndex = {};
+  var activeDrawMode = null;
+  var lastPortageId = null;
 
   var statusBar = document.getElementById("statusBar");
   var sidebar = document.getElementById("sidebar");
-  var waterwayForm = document.getElementById("waterwayForm");
+  var guideSidebar = document.getElementById("guideSidebar");
+  var featureForm = document.getElementById("featureForm");
 
   function setStatus(msg) {
     statusBar.textContent = msg;
@@ -65,8 +67,15 @@
       .slice(0, 40) || "segment";
   }
 
-  function newFeatureId(river) {
-    return slugify(river) + "-" + Date.now().toString(36);
+  function newFeatureId(prefix) {
+    return slugify(prefix) + "-" + Date.now().toString(36);
+  }
+
+  function featureKind(feature) {
+    var p = feature.properties || {};
+    if (p.feature_kind) return p.feature_kind;
+    if (feature.geometry.type === "Point") return p.type === "Ausstieg" ? "ausstieg" : "einstieg";
+    return "waterway";
   }
 
   function coordsToLatLngs(coords) {
@@ -97,7 +106,7 @@
     return null;
   }
 
-  function layerToFeature(layer, props) {
+  function layerToLineFeature(layer, props) {
     var latlngs = layer.getLatLngs();
     var coords;
     if (Array.isArray(latlngs[0]) && latlngs[0].lat === undefined) {
@@ -118,12 +127,53 @@
     };
   }
 
+  function layerToPointFeature(layer, props) {
+    var ll = layer.getLatLng();
+    return {
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [ll.lng, ll.lat] },
+      properties: props
+    };
+  }
+
+  function defaultsForDrawMode(mode) {
+    var base = { source: "community", river: "" };
+    if (mode === "portage" || mode === "portage_road") {
+      var id = newFeatureId("umtrag");
+      lastPortageId = id;
+      return Object.assign(base, {
+        id: id,
+        feature_kind: mode,
+        name: mode === "portage_road" ? "Umtrag Weg" : "Umtrag",
+        portage_id: id
+      });
+    }
+    if (mode === "einstieg" || mode === "ausstieg") {
+      return Object.assign(base, {
+        id: newFeatureId(mode),
+        feature_kind: mode,
+        name: mode === "einstieg" ? "Einstieg (Umtrag)" : "Ausstieg (Umtrag)",
+        portage_id: lastPortageId || "",
+        type: mode === "einstieg" ? "Einstieg" : "Ausstieg"
+      });
+    }
+    return Object.assign(base, {
+      id: newFeatureId("fluss"),
+      feature_kind: "waterway",
+      name: "Neues Gewässer",
+      waterway: "river",
+      replaces_osm_ids: [],
+      navigable: true,
+      flow_direction: "with_coords"
+    });
+  }
+
   function buildCommunityCollection() {
     return {
       type: "FeatureCollection",
       metadata: {
-        name: "FlowTrail Community Waterways",
-        description: "Von Maintainers gepflegte Kanu-Gewässerlinien.",
+        name: "FlowTrail Community Map",
+        description: "Flussläufe, Umträge, Ein-/Ausstiege (Community).",
         version: new Date().toISOString().slice(0, 16).replace("T", "T")
       },
       features: communityFeatures
@@ -137,7 +187,17 @@
     return r !== "no_canoe" && r !== "no_paddle" && r !== "closed" && r !== "gesperrt";
   }
 
-  function communityStyle(props) {
+  function lineStyle(props) {
+    var kind = props.feature_kind || "waterway";
+    if (kind === "portage" || kind === "portage_road") {
+      return {
+        color: "#eab308",
+        weight: kind === "portage_road" ? 4 : 5,
+        opacity: 0.95,
+        dashArray: "10 8",
+        className: "community-portage"
+      };
+    }
     var ok = isNavigable(props);
     return {
       color: ok ? "#0284c7" : "#dc2626",
@@ -148,12 +208,23 @@
     };
   }
 
+  function pointIcon(kind) {
+    var isIn = kind === "einstieg";
+    return L.divIcon({
+      className: "",
+      html:
+        '<div class="poi-pin ' + (isIn ? "pin-einstieg" : "pin-ausstieg") + '">' +
+        (isIn ? "E" : "A") +
+        "</div>",
+      iconSize: [24, 24],
+      iconAnchor: [12, 24]
+    });
+  }
+
   function linePoints(feature) {
     var g = feature.geometry;
     if (g.type === "LineString") return coordsToLatLngs(g.coordinates);
-    if (g.type === "MultiLineString" && g.coordinates[0]) {
-      return coordsToLatLngs(g.coordinates[0]);
-    }
+    if (g.type === "MultiLineString" && g.coordinates[0]) return coordsToLatLngs(g.coordinates[0]);
     return [];
   }
 
@@ -189,17 +260,21 @@
   }
 
   function addDirectionDecorations(feature, layerGroup) {
+    if (featureKind(feature) !== "waterway") return;
     var props = feature.properties || {};
     var ordered = orderedLineLatLngs(feature);
     if (ordered.length < 2) return;
-
     if (props.upstream_node && props.upstream_node.length >= 2) {
       L.marker([props.upstream_node[1], props.upstream_node[0]], {
-        icon: L.divIcon({ className: "", html: '<div class="upstream-pin"></div>', iconSize: [12, 12], iconAnchor: [6, 6] }),
+        icon: L.divIcon({
+          className: "",
+          html: '<div class="upstream-pin"></div>',
+          iconSize: [12, 12],
+          iconAnchor: [6, 6]
+        }),
         interactive: false
       }).addTo(layerGroup);
     }
-
     var arrow = arrowLatLng(feature);
     if (!arrow) return;
     var idx = Math.min(ordered.length - 1, Math.max(1, Math.floor(ordered.length * 0.72)));
@@ -216,23 +291,34 @@
     }).addTo(layerGroup);
   }
 
+  function featureBounds(feature) {
+    if (feature.geometry.type === "Point") {
+      var c = feature.geometry.coordinates;
+      var ll = L.latLng(c[1], c[0]);
+      return L.latLngBounds(ll, ll);
+    }
+    var layer = featureToLayer(feature, {});
+    return layer ? layer.getBounds() : null;
+  }
+
+  function fitCommunityBounds() {
+    var bounds = null;
+    communityFeatures.forEach(function (f) {
+      var b = featureBounds(f);
+      if (!b) return;
+      bounds = bounds ? bounds.extend(b) : b;
+    });
+    if (bounds && bounds.isValid()) {
+      map.fitBounds(bounds.pad(0.12));
+    }
+  }
+
   function osmStyle() {
-    return {
-      color: "#64748b",
-      weight: 3,
-      opacity: 0.75,
-      dashArray: "6 4",
-      className: "osm-waterway"
-    };
+    return { color: "#64748b", weight: 3, opacity: 0.75, dashArray: "6 4" };
   }
 
   function osmLiveStyle() {
-    return {
-      color: "#94a3b8",
-      weight: 2,
-      opacity: 0.6,
-      dashArray: "3 6"
-    };
+    return { color: "#94a3b8", weight: 2, opacity: 0.6, dashArray: "3 6" };
   }
 
   function isBlockedOsm(props) {
@@ -245,80 +331,76 @@
     });
   }
 
-  function lineBounds(feature) {
-    var layer = featureToLayer(feature, {});
-    return layer ? layer.getBounds() : null;
-  }
-
   function featuresInViewport(features, limit) {
     var bounds = map.getBounds();
     var filtered = features.filter(function (f) {
-      var b = lineBounds(f);
+      var b = featureBounds(f);
       return b && bounds.intersects(b);
     });
-    if (filtered.length > limit) {
-      return filtered.slice(0, limit);
-    }
-    return filtered;
+    return filtered.length > limit ? filtered.slice(0, limit) : filtered;
   }
 
   function redrawCommunity() {
     communityLayer.clearLayers();
-    communityLayersByIndex = {};
-
     communityFeatures.forEach(function (feature, index) {
+      var kind = featureKind(feature);
       var props = feature.properties || {};
-      var layer = featureToLayer(feature, communityStyle(props));
-      if (!layer) return;
-
-      layer.on("click", function (e) {
-        if (trimMode) {
+      var clickFn = function (e) {
+        if (trimMode && kind === "waterway") {
           handleTrimClick(index, e.latlng);
           L.DomEvent.stopPropagation(e);
           return;
         }
         L.DomEvent.stopPropagation(e);
         openEditor(index);
-      });
+      };
 
+      if (feature.geometry.type === "Point") {
+        L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
+          icon: pointIcon(kind),
+          draggable: true
+        })
+          .on("click", clickFn)
+          .on("dragend", function (e) {
+            var ll = e.target.getLatLng();
+            feature.geometry.coordinates = [ll.lng, ll.lat];
+          })
+          .addTo(communityLayer);
+        return;
+      }
+
+      var layer = featureToLayer(feature, lineStyle(props));
+      if (!layer) return;
+      layer.on("click", clickFn);
       layer.addTo(communityLayer);
-      communityLayersByIndex[index] = layer;
       addDirectionDecorations(feature, communityLayer);
     });
-
     updateStatusCounts();
   }
 
   function bindOsmPopup(layer, feature, adoptFn) {
     var props = feature.properties || {};
-    var html =
-      "<strong>" + (props.name || "OSM Gewässer") + "</strong><br>" +
-      (props.river ? "Fluss: " + props.river + "<br>" : "") +
-      (props.osm_id || "") +
-      '<br><button type="button" class="btn primary adopt-btn" style="margin-top:8px">Als Community übernehmen</button>';
-    layer.bindPopup(html);
+    layer.bindPopup(
+      "<strong>" + (props.name || "OSM") + "</strong><br>" +
+        (props.river ? "Fluss: " + props.river + "<br>" : "") +
+        '<button type="button" class="btn primary adopt-btn" style="margin-top:8px">Als Fluss übernehmen</button>'
+    );
     layer.on("popupopen", function () {
       var btn = document.querySelector(".adopt-btn");
-      if (btn) {
-        btn.onclick = function () {
-          adoptFn(feature);
-          map.closePopup();
-        };
-      }
+      if (btn) btn.onclick = function () { adoptFn(feature); map.closePopup(); };
     });
   }
 
   function redrawOsmFile() {
     osmFileLayer.clearLayers();
     if (!document.getElementById("osmFileToggle").checked) return;
-
-    var visible = featuresInViewport(osmFileFeatures, VIEWPORT_OSM_LIMIT);
-    visible.forEach(function (feature) {
+    featuresInViewport(osmFileFeatures, VIEWPORT_OSM_LIMIT).forEach(function (feature) {
       if (isBlockedOsm(feature.properties)) return;
       var layer = featureToLayer(feature, osmStyle());
-      if (!layer) return;
-      bindOsmPopup(layer, feature, adoptOsmFeature);
-      layer.addTo(osmFileLayer);
+      if (layer) {
+        bindOsmPopup(layer, feature, adoptOsmFeature);
+        layer.addTo(osmFileLayer);
+      }
     });
     updateStatusCounts();
   }
@@ -326,53 +408,121 @@
   function redrawOsmLive() {
     osmLiveLayer.clearLayers();
     if (!document.getElementById("osmLiveToggle").checked) return;
-
-    var visible = featuresInViewport(osmLiveFeatures, VIEWPORT_OSM_LIMIT);
-    visible.forEach(function (feature) {
+    featuresInViewport(osmLiveFeatures, VIEWPORT_OSM_LIMIT).forEach(function (feature) {
       if (isBlockedOsm(feature.properties)) return;
       var layer = featureToLayer(feature, osmLiveStyle());
-      if (!layer) return;
-      bindOsmPopup(layer, feature, adoptOsmFeature);
-      layer.addTo(osmLiveLayer);
+      if (layer) {
+        bindOsmPopup(layer, feature, adoptOsmFeature);
+        layer.addTo(osmLiveLayer);
+      }
     });
     updateStatusCounts();
   }
 
   function updateStatusCounts() {
-    var parts = [communityFeatures.length + " Community-Linien"];
-    if (document.getElementById("osmFileToggle").checked && osmFileLoaded) {
-      parts.push(osmFileFeatures.length + " OSM-Import gesamt");
+    var kinds = { waterway: 0, portage: 0, portage_road: 0, einstieg: 0, ausstieg: 0 };
+    communityFeatures.forEach(function (f) {
+      var k = featureKind(f);
+      kinds[k] = (kinds[k] || 0) + 1;
+    });
+    setStatus(
+      "Community: " + kinds.waterway + " Fluss · " + kinds.portage + " Umtrag · " +
+        kinds.portage_road + " Weg · " + kinds.einstieg + " E · " + kinds.ausstieg + " A · " +
+        riverGuides.rivers.length + " Flussführer"
+    );
+  }
+
+  function clearDrawMode() {
+    activeDrawMode = null;
+    map.pm.disableDraw();
+    document.querySelectorAll(".tool-btn").forEach(function (b) {
+      b.classList.remove("active");
+    });
+  }
+
+  function startDrawMode(mode) {
+    clearDrawMode();
+    trimMode = false;
+    upstreamPickMode = false;
+    document.getElementById("btnTrim").classList.remove("active");
+    activeDrawMode = mode;
+    document.querySelector('.tool-btn[data-draw="' + mode + '"]').classList.add("active");
+
+    if (mode === "einstieg" || mode === "ausstieg") {
+      map.pm.enableDraw("Marker", { snappable: true });
+      setStatus("Setze " + (mode === "einstieg" ? "Einstieg" : "Ausstieg") + " auf die Karte.");
+      return;
     }
-    if (document.getElementById("osmLiveToggle").checked) {
-      parts.push(osmLiveFeatures.length + " OSM-Live im Speicher");
-    }
-    setStatus(parts.join(" · "));
+    map.pm.enableDraw("Line", {
+      snappable: true,
+      snapDistance: 20,
+      allowSelfIntersection: false
+    });
+    var labels = {
+      waterway: "Flusslinie",
+      portage: "Umtrag (gelb, gestrichelt)",
+      portage_road: "Weg/Straße (gelb)"
+    };
+    setStatus("Zeichne: " + (labels[mode] || mode));
+  }
+
+  function showFieldPanels(kind) {
+    document.getElementById("waterwayFields").classList.toggle("hidden", kind !== "waterway");
+    document.getElementById("portageFields").classList.toggle(
+      "hidden",
+      kind !== "portage" && kind !== "portage_road"
+    );
+    document.getElementById("pointFields").classList.toggle(
+      "hidden",
+      kind !== "einstieg" && kind !== "ausstieg"
+    );
+    document.getElementById("btnSetUpstream").parentElement.parentElement.classList.toggle(
+      "hidden",
+      kind !== "waterway"
+    );
   }
 
   function openEditor(index) {
     var feature = communityFeatures[index];
     if (!feature) return;
+    var kind = featureKind(feature);
     var props = feature.properties || {};
+    guideSidebar.classList.add("hidden");
+    sidebar.classList.remove("hidden");
     document.getElementById("featureIndex").value = String(index);
-    document.getElementById("wwName").value = props.name || "";
-    document.getElementById("wwRiver").value = props.river || "";
-    document.getElementById("wwType").value = props.waterway || "river";
-    document.getElementById("wwId").value = props.id || "";
-    document.getElementById("wwNavigable").checked = isNavigable(props);
-    document.getElementById("wwFlow").value =
-      props.flow_direction === "reverse_coords" ? "reverse_coords" : "with_coords";
-    var up = props.upstream_node;
-    document.getElementById("wwUpstreamLabel").textContent =
-      up && up.length >= 2
-        ? up[1].toFixed(5) + ", " + up[0].toFixed(5)
-        : "nicht gesetzt (Pfeil folgt Linienrichtung)";
+    document.getElementById("featId").value = props.id || "";
+    showFieldPanels(kind);
+
+    if (kind === "waterway") {
+      document.getElementById("sidebarTitle").textContent = "Fluss bearbeiten";
+      document.getElementById("wwName").value = props.name || "";
+      document.getElementById("wwRiver").value = props.river || "";
+      document.getElementById("wwType").value = props.waterway || "river";
+      document.getElementById("wwNavigable").checked = isNavigable(props);
+      document.getElementById("wwFlow").value =
+        props.flow_direction === "reverse_coords" ? "reverse_coords" : "with_coords";
+      var up = props.upstream_node;
+      document.getElementById("wwUpstreamLabel").textContent =
+        up && up.length >= 2 ? up[1].toFixed(5) + ", " + up[0].toFixed(5) : "nicht gesetzt";
+    } else if (kind === "portage" || kind === "portage_road") {
+      document.getElementById("sidebarTitle").textContent =
+        kind === "portage_road" ? "Umtrag-Weg bearbeiten" : "Umtrag bearbeiten";
+      document.getElementById("pgName").value = props.name || "";
+      document.getElementById("pgRiver").value = props.river || "";
+      document.getElementById("pgPortageId").value = props.portage_id || props.id || "";
+      lastPortageId = props.portage_id || props.id;
+    } else {
+      document.getElementById("sidebarTitle").textContent = kind === "einstieg" ? "Einstieg" : "Ausstieg";
+      document.getElementById("ptKind").value = kind;
+      document.getElementById("ptName").value = props.name || "";
+      document.getElementById("ptRiver").value = props.river || "";
+      document.getElementById("ptPortageId").value = props.portage_id || "";
+    }
+
     var replaces = props.replaces_osm_ids || [];
     if (typeof replaces === "string") replaces = replaces ? [replaces] : [];
     document.getElementById("wwReplacesOsm").value = replaces.join(", ");
-    document.getElementById("replacesRow").classList.toggle("hidden", replaces.length === 0);
-    document.getElementById("btnDelete").classList.toggle("hidden", index < 0);
-    document.getElementById("sidebarTitle").textContent = "Community-Gewässer bearbeiten";
-    sidebar.classList.remove("hidden");
+    document.getElementById("replacesRow").classList.toggle("hidden", !replaces.length);
     trimTargetIndex = index;
   }
 
@@ -385,10 +535,11 @@
   }
 
   function adoptOsmFeature(osmFeature) {
-    var props = Object.assign({}, osmFeature.properties || {});
+    var props = osmFeature.properties || {};
     var copy = JSON.parse(JSON.stringify(osmFeature));
     copy.properties = {
       id: newFeatureId(props.river || props.name),
+      feature_kind: "waterway",
       name: props.name || "Gewässer",
       river: props.river || "",
       waterway: props.waterway || "river",
@@ -402,21 +553,16 @@
     redrawOsmFile();
     redrawOsmLive();
     openEditor(communityFeatures.length - 1);
-    setStatus("OSM-Linie übernommen. Bitte prüfen und exportieren.");
   }
 
   function handleTrimClick(index, latlng) {
-    if (index < 0 || !communityFeatures[index]) {
-      setStatus("Stutzen: Zuerst eine Community-Linie anklicken.");
-      return;
-    }
+    if (index < 0 || featureKind(communityFeatures[index]) !== "waterway") return;
     trimTargetIndex = index;
     trimPoints.push(latlng);
     if (trimPoints.length < 2) {
-      setStatus("Stutzen: Zweiten Punkt auf derselben Linie wählen …");
+      setStatus("Stutzen: zweiten Punkt wählen …");
       return;
     }
-
     var feature = communityFeatures[index];
     try {
       var line = turf.lineString(feature.geometry.coordinates);
@@ -425,132 +571,245 @@
       var sliced = turf.lineSlice(start, end, line);
       var fullLen = turf.length(line, { units: "kilometers" });
       var sliceLen = turf.length(sliced, { units: "kilometers" });
-      var keepSlice = sliceLen <= fullLen / 2;
-
-      if (keepSlice) {
-        feature.geometry.coordinates = sliced.geometry.coordinates;
-      } else {
-        var merged = turf.lineSlice(end, start, line);
-        feature.geometry.coordinates = merged.geometry.coordinates;
-      }
-
+      feature.geometry.coordinates = (sliceLen <= fullLen / 2 ? sliced : turf.lineSlice(end, start, line))
+        .geometry.coordinates;
       trimPoints = [];
       trimMode = false;
       document.getElementById("btnTrim").classList.remove("active");
       redrawCommunity();
       openEditor(index);
-      setStatus("Linie gestutzt (kürzeres Segment behalten). Export nicht vergessen!");
+      setStatus("Fluss gestutzt.");
     } catch (err) {
       trimPoints = [];
       setStatus("Stutzen fehlgeschlagen: " + err.message);
     }
   }
 
-  waterwayForm.addEventListener("submit", function (e) {
+  function listRiversFromFeatures() {
+    var names = {};
+    communityFeatures.forEach(function (f) {
+      var r = (f.properties && f.properties.river) || "";
+      if (r.trim()) names[r.trim()] = true;
+    });
+    riverGuides.rivers.forEach(function (g) {
+      if (g.river) names[g.river] = true;
+    });
+    return Object.keys(names).sort();
+  }
+
+  function findGuide(riverName) {
+    return riverGuides.rivers.find(function (g) {
+      return g.river === riverName;
+    });
+  }
+
+  function refreshGuideRiverSelect() {
+    var sel = document.getElementById("guideRiverSelect");
+    var current = sel.value;
+    sel.innerHTML = "";
+    listRiversFromFeatures().forEach(function (name) {
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+    if (current) sel.value = current;
+    loadGuideIntoForm();
+  }
+
+  function loadGuideIntoForm() {
+    var river = document.getElementById("guideRiverSelect").value;
+    var guide = findGuide(river);
+    document.getElementById("guideDescription").value = guide ? guide.description || "" : "";
+    var container = document.getElementById("guideSections");
+    container.innerHTML = "";
+    var sections = guide && guide.sections ? guide.sections : [];
+    sections.forEach(function (sec, i) {
+      container.appendChild(createSectionEditor(sec, i));
+    });
+  }
+
+  function createSectionEditor(sec, index) {
+    var div = document.createElement("div");
+    div.className = "section-card";
+    div.dataset.index = String(index);
+    div.innerHTML =
+      '<label>Abschnitt <input type="text" class="sec-name" value="' +
+      escapeAttr(sec.name || "") +
+      '" /></label>' +
+      '<label>Regeln <textarea class="sec-rules" rows="3">' +
+      escapeHtml(sec.rules || "") +
+      "</textarea></label>" +
+      '<label>Notizen <textarea class="sec-notes" rows="2">' +
+      escapeHtml(sec.notes || "") +
+      "</textarea></label>" +
+      '<button type="button" class="btn danger btn-sec-del">Abschnitt löschen</button>';
+    div.querySelector(".btn-sec-del").onclick = function () {
+      div.remove();
+    };
+    return div;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, "&quot;");
+  }
+
+  function collectGuideFromForm() {
+    var river = document.getElementById("guideRiverSelect").value;
+    if (!river) return null;
+    var sections = [];
+    document.querySelectorAll("#guideSections .section-card").forEach(function (card, i) {
+      sections.push({
+        id: slugify(river) + "-sec-" + i,
+        name: card.querySelector(".sec-name").value.trim() || "Abschnitt " + (i + 1),
+        rules: card.querySelector(".sec-rules").value.trim(),
+        notes: card.querySelector(".sec-notes").value.trim()
+      });
+    });
+    return {
+      river_id: slugify(river),
+      river: river,
+      description: document.getElementById("guideDescription").value.trim(),
+      sections: sections
+    };
+  }
+
+  function saveGuideLocal() {
+    var g = collectGuideFromForm();
+    if (!g) {
+      setStatus("Flussname wählen.");
+      return;
+    }
+    var idx = riverGuides.rivers.findIndex(function (x) { return x.river === g.river; });
+    if (idx >= 0) riverGuides.rivers[idx] = g;
+    else riverGuides.rivers.push(g);
+    riverGuides.version = new Date().toISOString().slice(0, 16);
+    setStatus("Flussführer lokal aktualisiert. „In Repo speichern“ für GitHub.");
+    updateStatusCounts();
+  }
+
+  function openGuidePanel() {
+    closeSidebar();
+    guideSidebar.classList.remove("hidden");
+    refreshGuideRiverSelect();
+  }
+
+  featureForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var index = parseInt(document.getElementById("featureIndex").value, 10);
     if (index < 0 || !communityFeatures[index]) return;
     var feature = communityFeatures[index];
     var props = feature.properties;
-    props.name = document.getElementById("wwName").value.trim();
-    props.river = document.getElementById("wwRiver").value.trim();
-    props.waterway = document.getElementById("wwType").value;
-    props.id = document.getElementById("wwId").value.trim() || newFeatureId(props.river);
+    var kind = featureKind(feature);
+    props.id = document.getElementById("featId").value.trim() || props.id;
     props.source = "community";
-    props.navigable = document.getElementById("wwNavigable").checked;
-    props.flow_direction = document.getElementById("wwFlow").value;
-    if (!props.navigable) {
-      props.restriction = "no_canoe";
+    props.feature_kind = kind;
+
+    if (kind === "waterway") {
+      props.name = document.getElementById("wwName").value.trim();
+      props.river = document.getElementById("wwRiver").value.trim();
+      props.waterway = document.getElementById("wwType").value;
+      props.navigable = document.getElementById("wwNavigable").checked;
+      props.flow_direction = document.getElementById("wwFlow").value;
+      if (!props.navigable) props.restriction = "no_canoe";
+      else delete props.restriction;
+    } else if (kind === "portage" || kind === "portage_road") {
+      props.name = document.getElementById("pgName").value.trim();
+      props.river = document.getElementById("pgRiver").value.trim();
+      props.portage_id = document.getElementById("pgPortageId").value.trim() || props.id;
+      lastPortageId = props.portage_id;
     } else {
-      delete props.restriction;
+      props.name = document.getElementById("ptName").value.trim();
+      props.river = document.getElementById("ptRiver").value.trim();
+      props.portage_id = document.getElementById("ptPortageId").value.trim();
+      props.type = kind === "einstieg" ? "Einstieg" : "Ausstieg";
     }
     redrawCommunity();
     closeSidebar();
-    setStatus("Gespeichert (lokal). Export nicht vergessen!");
+    setStatus("Gespeichert (lokal).");
   });
 
-  document.getElementById("btnDelete").addEventListener("click", function () {
+  document.getElementById("btnDelete").onclick = function () {
     var index = parseInt(document.getElementById("featureIndex").value, 10);
-    if (index < 0) return;
-    if (!confirm("Diese Community-Linie wirklich löschen?")) return;
+    if (index < 0 || !confirm("Wirklich löschen?")) return;
     communityFeatures.splice(index, 1);
     redrawCommunity();
-    redrawOsmFile();
-    redrawOsmLive();
     closeSidebar();
-  });
+  };
 
-  document.getElementById("btnClose").addEventListener("click", closeSidebar);
-
-  document.getElementById("btnSetUpstream").addEventListener("click", function () {
+  document.getElementById("btnClose").onclick = closeSidebar;
+  document.getElementById("btnSetUpstream").onclick = function () {
     var index = parseInt(document.getElementById("featureIndex").value, 10);
-    if (index < 0) {
-      setStatus("Zuerst eine Community-Linie auswählen.");
-      return;
-    }
+    if (index < 0) return setStatus("Zuerst Fluss wählen.");
     upstreamPickMode = !upstreamPickMode;
-    trimMode = false;
     document.getElementById("btnSetUpstream").classList.toggle("active", upstreamPickMode);
-    document.getElementById("btnTrim").classList.remove("active");
-    setStatus(
-      upstreamPickMode
-        ? "Klicke auf die Karte: Startpunkt / stromaufwärts (grüner Punkt)."
-        : "Setzen des Beginns abgebrochen."
-    );
-  });
-
-  document.getElementById("btnClearUpstream").addEventListener("click", function () {
+    setStatus(upstreamPickMode ? "Klicke Startpunkt auf der Karte." : "Abgebrochen.");
+  };
+  document.getElementById("btnClearUpstream").onclick = function () {
     var index = parseInt(document.getElementById("featureIndex").value, 10);
-    if (index < 0 || !communityFeatures[index]) return;
+    if (index < 0) return;
     delete communityFeatures[index].properties.upstream_node;
-    document.getElementById("wwUpstreamLabel").textContent = "nicht gesetzt";
     redrawCommunity();
-    setStatus("Beginn entfernt.");
-  });
+    openEditor(index);
+  };
 
-  document.getElementById("btnDraw").addEventListener("click", function () {
-    trimMode = false;
-    upstreamPickMode = false;
-    trimPoints = [];
-    document.getElementById("btnTrim").classList.remove("active");
-    document.getElementById("btnSetUpstream").classList.remove("active");
-    map.pm.enableDraw("Line", {
-      snappable: true,
-      snapDistance: 20,
-      allowSelfIntersection: false
+  document.querySelectorAll(".tool-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      startDrawMode(btn.getAttribute("data-draw"));
     });
-    setStatus("Zeichne eine Linie auf der Karte (Doppelklick beendet).");
   });
 
-  document.getElementById("btnTrim").addEventListener("click", function () {
+  document.getElementById("btnTrim").onclick = function () {
     trimMode = !trimMode;
-    upstreamPickMode = false;
-    trimPoints = [];
+    clearDrawMode();
     document.getElementById("btnTrim").classList.toggle("active", trimMode);
-    document.getElementById("btnSetUpstream").classList.remove("active");
-    map.pm.disableDraw();
-    setStatus(
-      trimMode
-        ? "Stutzen: Community-Linie wählen, dann Start- und Endpunkt auf der Linie setzen."
-        : "Stutzen beendet."
+    setStatus(trimMode ? "Stutzen: Fluss wählen, 2 Punkte." : "Stutzen aus.");
+  };
+
+  document.getElementById("btnPanelGuide").onclick = openGuidePanel;
+  document.getElementById("guideRiverSelect").onchange = loadGuideIntoForm;
+  document.getElementById("btnGuideAddSection").onclick = function () {
+    document.getElementById("guideSections").appendChild(
+      createSectionEditor({ name: "", rules: "", notes: "" }, 999)
     );
-  });
+  };
+  document.getElementById("btnGuideSave").onclick = saveGuideLocal;
+  document.getElementById("btnGuideClose").onclick = function () {
+    guideSidebar.classList.add("hidden");
+  };
+  document.getElementById("btnGuideNewRiver").onclick = function () {
+    var name = prompt("Flussname (muss zu gezeichneten Linien passen):");
+    if (!name || !name.trim()) return;
+    name = name.trim();
+    if (!findGuide(name)) {
+      riverGuides.rivers.push({
+        river_id: slugify(name),
+        river: name,
+        description: "",
+        sections: []
+      });
+    }
+    refreshGuideRiverSelect();
+    document.getElementById("guideRiverSelect").value = name;
+    loadGuideIntoForm();
+  };
 
   function getToken() {
     return sessionStorage.getItem(TOKEN_KEY) || "";
   }
 
-  function setToken(value) {
-    if (value) {
-      sessionStorage.setItem(TOKEN_KEY, value);
-    } else {
-      sessionStorage.removeItem(TOKEN_KEY);
-    }
+  function setToken(v) {
+    if (v) sessionStorage.setItem(TOKEN_KEY, v);
+    else sessionStorage.removeItem(TOKEN_KEY);
   }
 
   function githubHeaders() {
     var token = getToken();
-    if (!token) throw new Error("Kein GitHub-Token — bitte „Token“ einrichten.");
+    if (!token) throw new Error("Kein GitHub-Token.");
     return {
       Authorization: "Bearer " + token,
       Accept: "application/vnd.github+json",
@@ -558,255 +817,213 @@
     };
   }
 
-  function fetchExistingFileSha() {
-    return fetch(API_BASE + "/contents/" + COMMUNITY_PATH + "?ref=" + BRANCH, {
-      headers: githubHeaders()
+  function fetchSha(path) {
+    return fetch(API_BASE + "/contents/" + path + "?ref=" + BRANCH, { headers: githubHeaders() })
+      .then(function (r) {
+        if (r.status === 404) return null;
+        if (!r.ok) return r.json().then(function (e) { throw new Error(e.message); });
+        return r.json().then(function (d) { return d.sha; });
+      });
+  }
+
+  function putFile(path, jsonText, message) {
+    var content = btoa(unescape(encodeURIComponent(jsonText)));
+    return fetchSha(path).then(function (sha) {
+      var body = { message: message, content: content, branch: BRANCH };
+      if (sha) body.sha = sha;
+      return fetch(API_BASE + "/contents/" + path, {
+        method: "PUT",
+        headers: Object.assign({ "Content-Type": "application/json" }, githubHeaders()),
+        body: JSON.stringify(body)
+      });
     }).then(function (r) {
-      if (r.status === 404) return null;
-      if (!r.ok) {
-        return r.json().then(function (err) {
-          throw new Error(err.message || "GitHub HTTP " + r.status);
-        });
-      }
-      return r.json().then(function (data) {
-        return data.sha;
+      return r.json().then(function (d) {
+        if (!r.ok) throw new Error(d.message || "HTTP " + r.status);
       });
     });
   }
 
   function saveToGithub() {
-    var json = JSON.stringify(buildCommunityCollection(), null, 2) + "\n";
-    var content = btoa(unescape(encodeURIComponent(json)));
     setStatus("Speichere auf GitHub …");
     document.getElementById("btnSaveRepo").disabled = true;
-
-    fetchExistingFileSha()
-      .then(function (sha) {
-        var body = {
-          message: "editor: community waterways (" + communityFeatures.length + " features)",
-          content: content,
-          branch: BRANCH
-        };
-        if (sha) body.sha = sha;
-        return fetch(API_BASE + "/contents/" + COMMUNITY_PATH, {
-          method: "PUT",
-          headers: Object.assign({ "Content-Type": "application/json" }, githubHeaders()),
-          body: JSON.stringify(body)
-        });
-      })
-      .then(function (r) {
-        return r.json().then(function (data) {
-          if (!r.ok) throw new Error(data.message || "GitHub HTTP " + r.status);
-          return data;
-        });
+    var geo = JSON.stringify(buildCommunityCollection(), null, 2) + "\n";
+    riverGuides.version = new Date().toISOString().slice(0, 16);
+    var guides = JSON.stringify(riverGuides, null, 2) + "\n";
+    putFile(COMMUNITY_PATH, geo, "editor: community map (" + communityFeatures.length + " features)")
+      .then(function () {
+        return putFile(GUIDES_PATH, guides, "editor: river guides (" + riverGuides.rivers.length + " rivers)");
       })
       .then(function () {
-        setStatus(
-          "Gespeichert auf GitHub. merge-waterways läuft automatisch (~1 Min.). " +
-            "In der App: Info → Flussläufe aktualisieren."
-        );
+        setStatus("Gespeichert. Nach ~1 Min.: App → Flussläufe aktualisieren. Seite neu laden zeigt Daten.");
       })
       .catch(function (err) {
-        setStatus("GitHub-Fehler: " + err.message);
+        setStatus("GitHub: " + err.message);
       })
       .finally(function () {
         document.getElementById("btnSaveRepo").disabled = false;
       });
   }
 
-  document.getElementById("btnExport").addEventListener("click", function () {
-    var json = JSON.stringify(buildCommunityCollection(), null, 2);
-    var blob = new Blob([json], { type: "application/geo+json" });
+  document.getElementById("btnExport").onclick = function () {
     var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+    a.href = URL.createObjectURL(
+      new Blob([JSON.stringify(buildCommunityCollection(), null, 2)], { type: "application/json" })
+    );
     a.download = "community-waterways.geojson";
     a.click();
-    URL.revokeObjectURL(a.href);
-    setStatus("Download gestartet (Fallback ohne Token).");
-  });
+  };
 
-  document.getElementById("btnSaveRepo").addEventListener("click", function () {
+  document.getElementById("btnSaveRepo").onclick = function () {
     if (!getToken()) {
-      document.getElementById("githubToken").value = "";
       document.getElementById("tokenDialog").showModal();
-      setStatus("Bitte zuerst GitHub-Token hinterlegen.");
       return;
     }
-    if (!confirm(communityFeatures.length + " Community-Linien nach GitHub pushen?")) return;
+    saveGuideLocal();
+    if (!confirm("Community-Karte + Flussführer nach GitHub speichern?")) return;
     saveToGithub();
-  });
+  };
 
-  var tokenDialog = document.getElementById("tokenDialog");
-  document.getElementById("btnToken").addEventListener("click", function () {
+  document.getElementById("btnToken").onclick = function () {
     document.getElementById("githubToken").value = getToken();
-    tokenDialog.showModal();
-  });
-  document.getElementById("btnTokenCancel").addEventListener("click", function () {
-    tokenDialog.close();
-  });
-  document.getElementById("btnTokenClear").addEventListener("click", function () {
+    document.getElementById("tokenDialog").showModal();
+  };
+  document.getElementById("btnTokenCancel").onclick = function () {
+    document.getElementById("tokenDialog").close();
+  };
+  document.getElementById("btnTokenClear").onclick = function () {
     setToken("");
-    document.getElementById("githubToken").value = "";
-    setStatus("GitHub-Token gelöscht.");
-  });
-  document.getElementById("tokenForm").addEventListener("submit", function (e) {
+    setStatus("Token gelöscht.");
+  };
+  document.getElementById("tokenForm").onsubmit = function (e) {
     e.preventDefault();
-    var value = document.getElementById("githubToken").value.trim();
-    if (!value) {
-      setStatus("Token leer.");
-      return;
-    }
-    setToken(value);
-    tokenDialog.close();
-    setStatus("Token gespeichert (nur diese Browser-Sitzung).");
-  });
+    setToken(document.getElementById("githubToken").value.trim());
+    document.getElementById("tokenDialog").close();
+  };
 
   map.on("pm:create", function (e) {
     var layer = e.layer;
     map.removeLayer(layer);
-    var feature = layerToFeature(layer, {
-      id: newFeatureId(""),
-      name: "Neues Gewässer",
-      river: "",
-      waterway: "river",
-      source: "community",
-      replaces_osm_ids: [],
-      navigable: true,
-      flow_direction: "with_coords"
-    });
+    var mode = activeDrawMode || "waterway";
+    clearDrawMode();
+    var feature;
+    if (mode === "einstieg" || mode === "ausstieg") {
+      feature = layerToPointFeature(layer, defaultsForDrawMode(mode));
+    } else {
+      feature = layerToLineFeature(layer, defaultsForDrawMode(mode));
+    }
     communityFeatures.push(feature);
     redrawCommunity();
     openEditor(communityFeatures.length - 1);
-    setStatus("Neue Linie erstellt. Bitte Fluss/Name eintragen.");
   });
 
   map.on("moveend", function () {
     redrawOsmFile();
     redrawOsmLive();
-    if (document.getElementById("osmLiveToggle").checked) {
-      loadOsmLiveViewport();
-    }
+    if (document.getElementById("osmLiveToggle").checked) loadOsmLiveViewport();
   });
 
-  document.getElementById("osmFileToggle").addEventListener("change", function () {
-    if (this.checked && !osmFileLoaded) {
-      loadOsmFile();
-    } else {
-      redrawOsmFile();
-    }
-  });
+  document.getElementById("osmFileToggle").onchange = function () {
+    if (this.checked && !osmFileLoaded) loadOsmFile();
+    else redrawOsmFile();
+  };
+  document.getElementById("osmLiveToggle").onchange = function () {
+    if (this.checked) loadOsmLiveViewport();
+    else { osmLiveLayer.clearLayers(); osmLiveFeatures = []; updateStatusCounts(); }
+  };
 
-  document.getElementById("osmLiveToggle").addEventListener("change", function () {
-    if (this.checked) {
-      loadOsmLiveViewport();
-    } else {
-      osmLiveLayer.clearLayers();
-      osmLiveFeatures = [];
-      updateStatusCounts();
-    }
-  });
-
-  function overpassToFeatures(elements) {
-    var features = [];
-    elements.forEach(function (el) {
-      if (el.type !== "way" || !el.geometry || el.geometry.length < 2) return;
-      var tags = el.tags || {};
-      var osmId = "way/" + el.id;
-      var coords = el.geometry.map(function (n) {
-        return [n.lon, n.lat];
-      });
-      features.push({
-        type: "Feature",
-        geometry: { type: "LineString", coordinates: coords },
-        properties: {
-          id: osmId.replace("/", "-"),
-          name: tags.name || osmId,
-          river: tags.name || "",
-          waterway: tags.waterway || "river",
-          source: "osm",
-          osm_id: osmId
-        }
-      });
-    });
-    return features;
-  }
-
-  var liveLoadTimer = null;
   function loadOsmLiveViewport() {
     if (!document.getElementById("osmLiveToggle").checked) return;
-    clearTimeout(liveLoadTimer);
-    liveLoadTimer = setTimeout(function () {
-      var b = map.getBounds();
-      var q =
-        '[out:json][timeout:25];' +
-        'way["waterway"~"^(river|stream|canal)$"](' +
-        b.getSouth() + "," + b.getWest() + "," + b.getNorth() + "," + b.getEast() +
-        ');out geom;';
-      setStatus("Lade OSM-Live für Kartenausschnitt …");
-      fetch(OVERPASS_URL, {
-        method: "POST",
-        body: "data=" + encodeURIComponent(q),
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-      })
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
-        })
-        .then(function (data) {
-          osmLiveFeatures = overpassToFeatures(data.elements || []);
-          redrawOsmLive();
-          setStatus(osmLiveFeatures.length + " OSM-Live-Linien im Ausschnitt.");
-        })
-        .catch(function (err) {
-          setStatus("OSM-Live Fehler: " + err.message);
+    var b = map.getBounds();
+    var q = '[out:json][timeout:25];way["waterway"~"^(river|stream|canal)$"](' +
+      b.getSouth() + "," + b.getWest() + "," + b.getNorth() + "," + b.getEast() + ");out geom;";
+    fetch(OVERPASS_URL, {
+      method: "POST",
+      body: "data=" + encodeURIComponent(q),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        osmLiveFeatures = (data.elements || []).filter(function (el) {
+          return el.type === "way" && el.geometry && el.geometry.length >= 2;
+        }).map(function (el) {
+          return {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: el.geometry.map(function (n) { return [n.lon, n.lat]; })
+            },
+            properties: { source: "osm", osm_id: "way/" + el.id, name: (el.tags && el.tags.name) || "" }
+          };
         });
-    }, 400);
+        redrawOsmLive();
+      })
+      .catch(function (err) { setStatus("OSM-Live: " + err.message); });
+  }
+
+  function normalizeFeature(f) {
+    if (!f.properties) f.properties = {};
+    if (f.geometry.type === "LineString" && !f.properties.feature_kind) {
+      f.properties.feature_kind = "waterway";
+      f.properties.source = "community";
+    }
+    return f;
   }
 
   function loadCommunity() {
-    return fetch(RAW_BASE + "community-waterways.geojson")
+    return fetch(RAW_BASE + COMMUNITY_PATH)
       .then(function (r) {
-        if (!r.ok) throw new Error("community-waterways.geojson HTTP " + r.status);
+        if (!r.ok) throw new Error("community HTTP " + r.status);
         return r.json();
       })
       .then(function (data) {
-        communityFeatures = data.features || [];
+        communityFeatures = (data.features || []).map(normalizeFeature);
         redrawCommunity();
+        if (communityFeatures.length) fitCommunityBounds();
+      });
+  }
+
+  function loadRiverGuides() {
+    return fetch(RAW_BASE + GUIDES_PATH)
+      .then(function (r) {
+        if (!r.ok) return { version: "", label: "", rivers: [] };
+        return r.json();
+      })
+      .then(function (data) {
+        riverGuides = data;
+        if (!riverGuides.rivers) riverGuides.rivers = [];
+      })
+      .catch(function () {
+        riverGuides = { version: "", label: "", rivers: [] };
       });
   }
 
   function loadOsmFile() {
-    setStatus("Lade osm-waterways.geojson …");
     return fetch(RAW_BASE + "osm-waterways.geojson")
-      .then(function (r) {
-        if (!r.ok) throw new Error("osm-waterways.geojson HTTP " + r.status);
-        return r.json();
-      })
+      .then(function (r) { return r.ok ? r.json() : { features: [] }; })
       .then(function (data) {
         osmFileFeatures = data.features || [];
         osmFileLoaded = true;
         redrawOsmFile();
-      })
-      .catch(function (err) {
-        setStatus("OSM-Import-Layer: " + err.message + " (noch nicht importiert?)");
       });
   }
 
   map.on("click", function (e) {
     if (!upstreamPickMode) return;
     var index = parseInt(document.getElementById("featureIndex").value, 10);
-    if (index < 0 || !communityFeatures[index]) return;
+    if (index < 0) return;
     communityFeatures[index].properties.upstream_node = [e.latlng.lng, e.latlng.lat];
     upstreamPickMode = false;
     document.getElementById("btnSetUpstream").classList.remove("active");
-    document.getElementById("wwUpstreamLabel").textContent =
-      e.latlng.lat.toFixed(5) + ", " + e.latlng.lng.toFixed(5);
     redrawCommunity();
     openEditor(index);
-    setStatus("Beginn gesetzt. Pfeil zeigt Fahrtrichtung ab hier.");
   });
 
-  loadCommunity().catch(function (err) {
-    setStatus("Fehler beim Laden: " + err.message);
-  });
+  Promise.all([loadCommunity(), loadRiverGuides()])
+    .then(function () {
+      updateStatusCounts();
+      setStatus("Community + Flussführer aus Repo geladen.");
+    })
+    .catch(function (err) {
+      setStatus("Laden fehlgeschlagen: " + err.message);
+    });
 })();

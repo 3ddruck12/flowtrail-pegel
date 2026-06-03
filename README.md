@@ -30,15 +30,18 @@ Statische GeoJSON-Linien als Alternative zur langsamen Overpass-API in der App (
 
 ### Gewässer bearbeiten
 
-1. [Editor](https://3ddruck12.github.io/flowtrail-pegel/) öffnen → Fluss zeichnen, stutzen, OSM übernehmen
-   - **Befahrbar** (Checkbox): aus = gesperrte Strecke (rot)
-   - **Beginn auf Karte setzen** + Fahrtrichtung → Pfeil in App
-2. **Token** (einmalig): GitHub fine-grained PAT mit *Contents: Read and write* für dieses Repo
-3. **In Repo speichern** → committet `community-waterways.geojson` direkt (ohne Download)
-4. Action `merge-waterways` baut `waterways.geojson` + aktualisiert `waterways-manifest.json` (~1 Min.)
-5. In der **FlowTrail-App**: Info → **Flussläufe aktualisieren** (oder Auto-Update beim Start)
+1. [Editor](https://3ddruck12.github.io/flowtrail-pegel/) — lädt beim Start **Community + Flussführer** aus dem Repo
+2. **Zeichnen:** Fluss (blau) · **Umtrag** (gelb gestrichelt) · **Weg/Straße** · **Einstieg** (grün) · **Ausstieg** (rot)
+3. **Flussführer:** Beschreibung + Abschnitte mit Regeln pro Fluss (`river-guides.json`)
+4. **Token** + **In Repo speichern** → `community-waterways.geojson` + `river-guides.json`
+5. Action `merge-waterways` → `waterways.geojson` (~1 Min.)
+6. App: Info → **Flussläufe aktualisieren**
 
-Fallback ohne Token: **Download** → manuell committen.
+| Datei | Inhalt |
+|-------|--------|
+| `community-waterways.geojson` | Flüsse, Umträge, Ein-/Ausstieg (GeoJSON) |
+| `river-guides.json` | Texte, Abschnitte, Regeln je Fluss |
+| `waterways.geojson` | Merge für die App |
 
 OSM-Basis aktualisieren: Actions → **import-osm-waterways** → Region `nw` oder `de`.
 

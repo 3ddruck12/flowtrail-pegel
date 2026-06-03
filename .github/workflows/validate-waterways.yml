@@ -7,12 +7,14 @@ on:
       - "osm-waterways.geojson"
       - "waterways.geojson"
       - "waterways-manifest.json"
+      - "river-guides.json"
   pull_request:
     paths:
       - "community-waterways.geojson"
       - "osm-waterways.geojson"
       - "waterways.geojson"
       - "waterways-manifest.json"
+      - "river-guides.json"
   workflow_dispatch:
 
 jobs:
@@ -32,6 +34,7 @@ jobs:
           from pathlib import Path
 
           LINE_TYPES = {'LineString', 'MultiLineString'}
+          POINT_TYPES = {'Point'}
 
           def validate_file(path: Path) -> int:
               if not path.exists():
@@ -44,7 +47,8 @@ jobs:
               for i, f in enumerate(features):
                   assert f.get('type') == 'Feature', f'{path.name}[{i}]: not Feature'
                   geom = f.get('geometry') or {}
-                  assert geom.get('type') in LINE_TYPES, f'{path.name}[{i}]: invalid geometry'
+                  gtype = geom.get('type')
+                  assert gtype in LINE_TYPES or gtype in POINT_TYPES, f'{path.name}[{i}]: invalid geometry'
                   coords = geom.get('coordinates') or []
                   assert coords, f'{path.name}[{i}]: empty coordinates'
                   props = f.get('properties') or {}
@@ -68,6 +72,12 @@ jobs:
               assert m.get('dataUrl'), 'waterways-manifest.json: dataUrl fehlt'
               assert m.get('version'), 'waterways-manifest.json: version fehlt'
               print('OK: waterways-manifest.json')
+
+          guides = Path('river-guides.json')
+          if guides.exists():
+              g = json.loads(guides.read_text(encoding='utf-8'))
+              assert isinstance(g.get('rivers'), list), 'river-guides: rivers must be list'
+              print('OK: river-guides.json —', len(g['rivers']), 'rivers')
 
           print('Validated', total, 'features total')
           "

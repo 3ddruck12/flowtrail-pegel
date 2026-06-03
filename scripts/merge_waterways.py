@@ -21,6 +21,9 @@ SPATIAL_DEDUP_METERS = 30.0
 DATA_URL = (
     "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/waterways.geojson"
 )
+GUIDES_URL = (
+    "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/river-guides.json"
+)
 
 
 def load_geojson(path: Path) -> dict[str, Any]:
@@ -129,12 +132,25 @@ def filter_osm_features(
     return filtered
 
 
+def feature_kind(feature: dict[str, Any]) -> str:
+    props = feature.get("properties") or {}
+    if props.get("feature_kind"):
+        return str(props["feature_kind"])
+    if (feature.get("geometry") or {}).get("type") == "Point":
+        return "point"
+    return "waterway"
+
+
 def merge_and_write(version: str | None = None) -> dict[str, int]:
     community_data = load_geojson(COMMUNITY_PATH)
     osm_data = load_geojson(OSM_PATH)
-    community = community_data.get("features", [])
+    community_all = community_data.get("features", [])
+    community_rivers = [
+        f for f in community_all if feature_kind(f) in ("waterway", "portage", "portage_road")
+    ]
+    community_points = [f for f in community_all if feature_kind(f) in ("einstieg", "ausstieg", "point")]
     osm_raw = osm_data.get("features", [])
-    osm_filtered = filter_osm_features(osm_raw, community)
+    osm_filtered = filter_osm_features(osm_raw, community_all)
 
     now = datetime.now(timezone.utc)
     if version is None:
@@ -150,7 +166,7 @@ def merge_and_write(version: str | None = None) -> dict[str, int]:
             ),
             "version": version,
         },
-        "features": community + osm_filtered,
+        "features": community_rivers + community_points + osm_filtered,
     }
     write_geojson(WATERWAYS_PATH, merged, compact=True)
 
@@ -158,9 +174,11 @@ def merge_and_write(version: str | None = None) -> dict[str, int]:
         "version": version,
         "updatedAt": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "label": (
-            f"FlowTrail Gewässer ({len(community)} Community + {len(osm_filtered)} OSM)"
+            f"FlowTrail Gewässer ({len(community_rivers)} Linien, {len(community_points)} Punkte, "
+            f"{len(osm_filtered)} OSM)"
         ),
         "dataUrl": DATA_URL,
+        "guidesUrl": GUIDES_URL,
     }
     MANIFEST_PATH.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
@@ -168,14 +186,15 @@ def merge_and_write(version: str | None = None) -> dict[str, int]:
     )
 
     stats = {
-        "community": len(community),
+        "community_lines": len(community_rivers),
+        "community_points": len(community_points),
         "osm_raw": len(osm_raw),
         "osm_merged": len(osm_filtered),
         "total": len(merged["features"]),
     }
     print(
-        f"Merge: {stats['community']} community + {stats['osm_merged']} osm "
-        f"({stats['osm_raw'] - stats['osm_merged']} osm gefiltert) = {stats['total']} gesamt"
+        f"Merge: {stats['community_lines']} community-Linien + {stats['community_points']} Punkte + "
+        f"{stats['osm_merged']} osm = {stats['total']} gesamt"
     )
     return stats
 

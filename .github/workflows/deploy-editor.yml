@@ -6,6 +6,7 @@ on:
     paths:
       - "editor/**"
       - "community-waterways.geojson"
+      - "river-guides.json"
   workflow_dispatch:
 
 permissions:

@@ -26,6 +26,28 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
   text-shadow: 0 0 2px #fff;
   line-height: 20px; text-align: center;
 }
+.toolbar-group-label { font-size: 0.85rem; color: #94a3b8; margin-right: 4px; }
+.tool-btn.active { outline: 2px solid #38bdf8; }
+.poi-pin {
+  width: 22px; height: 22px; border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg); border: 2px solid #fff;
+  font-size: 10px; font-weight: bold; color: #fff; text-align: center;
+  line-height: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+}
+.pin-einstieg { background: #22c55e; }
+.pin-ausstieg { background: #ef4444; }
+.poi-pin span { display: block; transform: rotate(45deg); }
+#guideSidebar textarea { width: 100%; margin-top: 4px; padding: 8px; border-radius: 6px;
+  border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-family: inherit; }
+.sections-title { font-size: 0.95rem; margin: 12px 0 8px; }
+.section-card {
+  border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px;
+  background: #0f172a;
+}
+.section-card label { margin-bottom: 8px; }
+.btn-sec-del { margin-top: 4px; width: 100%; }
+.layout { display: flex; height: calc(100% - 96px); }
+#guideSidebar { width: 340px; }
 .sidebar label { display: block; margin-bottom: 12px; font-size: 0.85rem; }
 .sidebar input, .sidebar select, .sidebar textarea {
   width: 100%; margin-top: 4px; padding: 8px; border-radius: 6px;

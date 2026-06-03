@@ -12,16 +12,16 @@
   <header class="toolbar">
     <h1>FlowTrail Gewässer-Editor</h1>
     <div class="toolbar-actions">
-      <label class="toggle">
-        <input type="checkbox" id="osmFileToggle" />
-        OSM-Import anzeigen
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="osmLiveToggle" />
-        OSM-Live (Overpass)
-      </label>
-      <button type="button" class="btn secondary" id="btnDraw">Fluss zeichnen</button>
+      <label class="toggle"><input type="checkbox" id="osmFileToggle" /> OSM-Import</label>
+      <label class="toggle"><input type="checkbox" id="osmLiveToggle" /> OSM-Live</label>
+      <span class="toolbar-group-label">Zeichnen:</span>
+      <button type="button" class="btn secondary tool-btn" data-draw="waterway">Fluss</button>
+      <button type="button" class="btn secondary tool-btn" data-draw="portage">Umtrag</button>
+      <button type="button" class="btn secondary tool-btn" data-draw="portage_road">Weg/Straße</button>
+      <button type="button" class="btn secondary tool-btn" data-draw="einstieg">Einstieg</button>
+      <button type="button" class="btn secondary tool-btn" data-draw="ausstieg">Ausstieg</button>
       <button type="button" class="btn secondary" id="btnTrim">Stutzen</button>
+      <button type="button" class="btn secondary" id="btnPanelGuide">Flussführer</button>
       <button type="button" class="btn secondary" id="btnExport">Download</button>
       <button type="button" class="btn primary" id="btnSaveRepo">In Repo speichern</button>
       <button type="button" class="btn secondary" id="btnToken" title="GitHub Token">Token</button>
@@ -32,14 +32,11 @@
     <form method="dialog" id="tokenForm">
       <h2>GitHub-Zugang</h2>
       <p class="dialog-hint">
-        Fine-grained Personal Access Token mit <strong>Contents: Read and write</strong> für
-        <code>3ddruck12/flowtrail-pegel</code>. Wird nur im Browser gespeichert (sessionStorage).
+        Fine-grained PAT mit <strong>Contents: Read and write</strong> für
+        <code>3ddruck12/flowtrail-pegel</code>.
         <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Token erstellen</a>
       </p>
-      <label>
-        Token
-        <input type="password" id="githubToken" autocomplete="off" />
-      </label>
+      <label>Token <input type="password" id="githubToken" autocomplete="off" /></label>
       <div class="form-actions">
         <button type="submit" class="btn primary">Speichern</button>
         <button type="button" class="btn secondary" id="btnTokenClear">Token löschen</button>
@@ -51,53 +48,46 @@
   <div class="layout">
     <div id="map"></div>
     <aside class="sidebar hidden" id="sidebar">
-      <h2 id="sidebarTitle">Gewässer bearbeiten</h2>
-      <form id="waterwayForm">
+      <h2 id="sidebarTitle">Objekt bearbeiten</h2>
+      <form id="featureForm">
         <input type="hidden" id="featureIndex" value="-1" />
-        <label>
-          Name
-          <input type="text" id="wwName" required />
-        </label>
-        <label>
-          Fluss
-          <input type="text" id="wwRiver" placeholder="z. B. Lenne" />
-        </label>
-        <label>
-          Gewässertyp
-          <select id="wwType">
-            <option value="river">Fluss (river)</option>
-            <option value="stream">Bach (stream)</option>
-            <option value="canal">Kanal (canal)</option>
-          </select>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" id="wwNavigable" checked />
-          Befahrbar (Linie blau)
-        </label>
-        <p class="sidebar-hint">Deaktivieren = gesperrt / nicht befahrbar (rot, gestrichelt)</p>
-        <label>
-          Fahrtrichtung
-          <select id="wwFlow">
-            <option value="with_coords">Mit Linienverlauf (Start → Ende)</option>
-            <option value="reverse_coords">Entgegen Linienverlauf</option>
-          </select>
-        </label>
-        <label>
-          Stromaufwärts / Start
-          <span id="wwUpstreamLabel" class="sidebar-meta">nicht gesetzt</span>
-        </label>
-        <div class="form-actions">
-          <button type="button" class="btn secondary" id="btnSetUpstream">Beginn auf Karte setzen</button>
-          <button type="button" class="btn secondary" id="btnClearUpstream">Beginn löschen</button>
+        <div id="waterwayFields">
+          <label>Name <input type="text" id="wwName" /></label>
+          <label>Fluss <input type="text" id="wwRiver" placeholder="z. B. Lenne" /></label>
+          <label>Gewässertyp
+            <select id="wwType">
+              <option value="river">Fluss</option>
+              <option value="stream">Bach</option>
+              <option value="canal">Kanal</option>
+            </select>
+          </label>
+          <label class="toggle"><input type="checkbox" id="wwNavigable" checked /> Befahrbar</label>
+          <label>Fahrtrichtung
+            <select id="wwFlow">
+              <option value="with_coords">Mit Linienverlauf</option>
+              <option value="reverse_coords">Entgegen Linienverlauf</option>
+            </select>
+          </label>
+          <label>Stromaufwärts <span id="wwUpstreamLabel" class="sidebar-meta">—</span></label>
+          <div class="form-actions">
+            <button type="button" class="btn secondary" id="btnSetUpstream">Beginn setzen</button>
+            <button type="button" class="btn secondary" id="btnClearUpstream">Beginn löschen</button>
+          </div>
         </div>
-        <label id="replacesRow" class="hidden">
-          Ersetzt OSM-IDs (kommagetrennt)
-          <input type="text" id="wwReplacesOsm" readonly />
-        </label>
-        <label>
-          Feature-ID
-          <input type="text" id="wwId" />
-        </label>
+        <div id="portageFields" class="hidden">
+          <label>Name <input type="text" id="pgName" placeholder="Umtrag Wehr XY" /></label>
+          <label>Fluss <input type="text" id="pgRiver" /></label>
+          <label>Verknüpft (portage_id) <input type="text" id="pgPortageId" /></label>
+          <p class="sidebar-hint">Gelb gestrichelt = Umtrag am Gewässer. Weg/Straße = Landweg zwischen Einstieg und Ausstieg.</p>
+        </div>
+        <div id="pointFields" class="hidden">
+          <label>Typ <input type="text" id="ptKind" readonly /></label>
+          <label>Name <input type="text" id="ptName" /></label>
+          <label>Fluss <input type="text" id="ptRiver" /></label>
+          <label>Umtrag-ID <input type="text" id="ptPortageId" placeholder="ID der Umtrag-Linie" /></label>
+        </div>
+        <label id="replacesRow" class="hidden">OSM-IDs <input type="text" id="wwReplacesOsm" readonly /></label>
+        <label>Feature-ID <input type="text" id="featId" /></label>
         <div class="form-actions">
           <button type="submit" class="btn primary">Speichern</button>
           <button type="button" class="btn danger" id="btnDelete">Löschen</button>
@@ -105,9 +95,27 @@
         </div>
       </form>
     </aside>
+    <aside class="sidebar hidden" id="guideSidebar">
+      <h2>Flussführer</h2>
+      <p class="sidebar-hint">Beschreibung und Abschnitts-Regeln pro Fluss (gespeichert in river-guides.json).</p>
+      <label>Fluss wählen
+        <select id="guideRiverSelect"></select>
+      </label>
+      <button type="button" class="btn secondary" id="btnGuideNewRiver">Fluss aus Liste hinzufügen</button>
+      <label>Beschreibung
+        <textarea id="guideDescription" rows="5" placeholder="Gesamtbeschreibung, Hinweise, Season …"></textarea>
+      </label>
+      <h3 class="sections-title">Abschnitte</h3>
+      <div id="guideSections"></div>
+      <button type="button" class="btn secondary" id="btnGuideAddSection">+ Abschnitt</button>
+      <div class="form-actions">
+        <button type="button" class="btn primary" id="btnGuideSave">Führer speichern (lokal)</button>
+        <button type="button" class="btn secondary" id="btnGuideClose">Schließen</button>
+      </div>
+    </aside>
   </div>
 
-  <footer class="status" id="statusBar">Lade …</footer>
+  <footer class="status" id="statusBar">Lade Community-Daten aus GitHub …</footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.min.js"></script>
