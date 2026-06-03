@@ -2,8 +2,13 @@
   "use strict";
 
   var REPO = "3ddruck12/flowtrail-pegel";
+  var REPO_OWNER = "3ddruck12";
+  var REPO_NAME = "flowtrail-pegel";
   var BRANCH = "main";
+  var COMMUNITY_PATH = "community-waterways.geojson";
+  var TOKEN_KEY = "flowtrail_github_token";
   var RAW_BASE = "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/";
+  var API_BASE = "https://api.github.com/repos/" + REPO;
   var OVERPASS_URL = "https://overpass-api.de/api/interpreter";
   var VIEWPORT_OSM_LIMIT = 300;
 
@@ -403,6 +408,84 @@
     );
   });
 
+  function getToken() {
+    return sessionStorage.getItem(TOKEN_KEY) || "";
+  }
+
+  function setToken(value) {
+    if (value) {
+      sessionStorage.setItem(TOKEN_KEY, value);
+    } else {
+      sessionStorage.removeItem(TOKEN_KEY);
+    }
+  }
+
+  function githubHeaders() {
+    var token = getToken();
+    if (!token) throw new Error("Kein GitHub-Token — bitte „Token“ einrichten.");
+    return {
+      Authorization: "Bearer " + token,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+  }
+
+  function fetchExistingFileSha() {
+    return fetch(API_BASE + "/contents/" + COMMUNITY_PATH + "?ref=" + BRANCH, {
+      headers: githubHeaders()
+    }).then(function (r) {
+      if (r.status === 404) return null;
+      if (!r.ok) {
+        return r.json().then(function (err) {
+          throw new Error(err.message || "GitHub HTTP " + r.status);
+        });
+      }
+      return r.json().then(function (data) {
+        return data.sha;
+      });
+    });
+  }
+
+  function saveToGithub() {
+    var json = JSON.stringify(buildCommunityCollection(), null, 2) + "\n";
+    var content = btoa(unescape(encodeURIComponent(json)));
+    setStatus("Speichere auf GitHub …");
+    document.getElementById("btnSaveRepo").disabled = true;
+
+    fetchExistingFileSha()
+      .then(function (sha) {
+        var body = {
+          message: "editor: community waterways (" + communityFeatures.length + " features)",
+          content: content,
+          branch: BRANCH
+        };
+        if (sha) body.sha = sha;
+        return fetch(API_BASE + "/contents/" + COMMUNITY_PATH, {
+          method: "PUT",
+          headers: Object.assign({ "Content-Type": "application/json" }, githubHeaders()),
+          body: JSON.stringify(body)
+        });
+      })
+      .then(function (r) {
+        return r.json().then(function (data) {
+          if (!r.ok) throw new Error(data.message || "GitHub HTTP " + r.status);
+          return data;
+        });
+      })
+      .then(function () {
+        setStatus(
+          "Gespeichert auf GitHub. merge-waterways läuft automatisch (~1 Min.). " +
+            "In der App: Info → Flussläufe aktualisieren."
+        );
+      })
+      .catch(function (err) {
+        setStatus("GitHub-Fehler: " + err.message);
+      })
+      .finally(function () {
+        document.getElementById("btnSaveRepo").disabled = false;
+      });
+  }
+
   document.getElementById("btnExport").addEventListener("click", function () {
     var json = JSON.stringify(buildCommunityCollection(), null, 2);
     var blob = new Blob([json], { type: "application/geo+json" });
@@ -411,7 +494,43 @@
     a.download = "community-waterways.geojson";
     a.click();
     URL.revokeObjectURL(a.href);
-    setStatus("Export gestartet. Datei ins Repo legen — merge-waterways Action baut waterways.geojson.");
+    setStatus("Download gestartet (Fallback ohne Token).");
+  });
+
+  document.getElementById("btnSaveRepo").addEventListener("click", function () {
+    if (!getToken()) {
+      document.getElementById("githubToken").value = "";
+      document.getElementById("tokenDialog").showModal();
+      setStatus("Bitte zuerst GitHub-Token hinterlegen.");
+      return;
+    }
+    if (!confirm(communityFeatures.length + " Community-Linien nach GitHub pushen?")) return;
+    saveToGithub();
+  });
+
+  var tokenDialog = document.getElementById("tokenDialog");
+  document.getElementById("btnToken").addEventListener("click", function () {
+    document.getElementById("githubToken").value = getToken();
+    tokenDialog.showModal();
+  });
+  document.getElementById("btnTokenCancel").addEventListener("click", function () {
+    tokenDialog.close();
+  });
+  document.getElementById("btnTokenClear").addEventListener("click", function () {
+    setToken("");
+    document.getElementById("githubToken").value = "";
+    setStatus("GitHub-Token gelöscht.");
+  });
+  document.getElementById("tokenForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var value = document.getElementById("githubToken").value.trim();
+    if (!value) {
+      setStatus("Token leer.");
+      return;
+    }
+    setToken(value);
+    tokenDialog.close();
+    setStatus("Token gespeichert (nur diese Browser-Sitzung).");
   });
 
   map.on("pm:create", function (e) {

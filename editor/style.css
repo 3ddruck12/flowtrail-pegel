@@ -33,6 +33,20 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
 .toggle { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
 .hidden { display: none !important; }
 
+.dialog {
+  border: 1px solid #475569;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 420px;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+.dialog::backdrop { background: rgba(0, 0, 0, 0.55); }
+.dialog h2 { margin: 0 0 12px; font-size: 1.1rem; }
+.dialog-hint { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; margin-bottom: 12px; }
+.dialog code { background: #0f172a; padding: 2px 6px; border-radius: 4px; }
+.dialog a { color: #38bdf8; }
+
 .community-waterway { cursor: pointer; }
 .osm-waterway { cursor: pointer; }
 

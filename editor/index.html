@@ -22,9 +22,31 @@
       </label>
       <button type="button" class="btn secondary" id="btnDraw">Fluss zeichnen</button>
       <button type="button" class="btn secondary" id="btnTrim">Stutzen</button>
-      <button type="button" class="btn primary" id="btnExport">Community exportieren</button>
+      <button type="button" class="btn secondary" id="btnExport">Download</button>
+      <button type="button" class="btn primary" id="btnSaveRepo">In Repo speichern</button>
+      <button type="button" class="btn secondary" id="btnToken" title="GitHub Token">Token</button>
     </div>
   </header>
+
+  <dialog id="tokenDialog" class="dialog">
+    <form method="dialog" id="tokenForm">
+      <h2>GitHub-Zugang</h2>
+      <p class="dialog-hint">
+        Fine-grained Personal Access Token mit <strong>Contents: Read and write</strong> für
+        <code>3ddruck12/flowtrail-pegel</code>. Wird nur im Browser gespeichert (sessionStorage).
+        <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Token erstellen</a>
+      </p>
+      <label>
+        Token
+        <input type="password" id="githubToken" autocomplete="off" />
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn primary">Speichern</button>
+        <button type="button" class="btn secondary" id="btnTokenClear">Token löschen</button>
+        <button type="button" class="btn secondary" id="btnTokenCancel">Abbrechen</button>
+      </div>
+    </form>
+  </dialog>
 
   <div class="layout">
     <div id="map"></div>
