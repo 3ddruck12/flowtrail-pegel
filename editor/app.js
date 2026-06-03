@@ -14,6 +14,9 @@
   var editorMode = "waterways";
   var OVERPASS_URL = "https://overpass-api.de/api/interpreter";
   var VIEWPORT_OSM_LIMIT = 300;
+  var OSM_LIVE_MIN_ZOOM = 10;
+  var osmLiveAbort = null;
+  var osmLiveBoundsKey = "";
 
   var map = L.map("map", { zoomControl: false }).setView([51.45, 7.45], 9);
   L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -348,13 +351,74 @@
     });
   }
 
+  function featureIntersectsMapBounds(feature, bounds) {
+    var g = feature.geometry;
+    if (!g || !g.coordinates) return false;
+    if (g.type === "Point") {
+      var c = g.coordinates;
+      return bounds.contains(L.latLng(c[1], c[0]));
+    }
+    var lines = g.type === "LineString" ? [g.coordinates] : g.coordinates;
+    var south = bounds.getSouth();
+    var north = bounds.getNorth();
+    var west = bounds.getWest();
+    var east = bounds.getEast();
+    for (var li = 0; li < lines.length; li++) {
+      var coords = lines[li];
+      if (!coords || !coords.length) continue;
+      var step = Math.max(1, Math.floor(coords.length / 8));
+      for (var i = 0; i < coords.length; i += step) {
+        var lat = coords[i][1];
+        var lon = coords[i][0];
+        if (lat >= south && lat <= north && lon >= west && lon <= east) return true;
+      }
+    }
+    return false;
+  }
+
   function featuresInViewport(features, limit) {
+    if (!features.length || !map.getBounds().isValid()) return [];
     var bounds = map.getBounds();
-    var filtered = features.filter(function (f) {
-      var b = featureBounds(f);
-      return b && bounds.intersects(b);
-    });
-    return filtered.length > limit ? filtered.slice(0, limit) : filtered;
+    var zoom = map.getZoom();
+    var cap = limit;
+    if (zoom < 8) cap = Math.min(limit, 40);
+    else if (zoom < 10) cap = Math.min(limit, 120);
+    else if (zoom < 12) cap = Math.min(limit, 200);
+    var filtered = [];
+    for (var i = 0; i < features.length; i++) {
+      if (featureIntersectsMapBounds(features[i], bounds)) {
+        filtered.push(features[i]);
+        if (filtered.length >= cap) break;
+      }
+    }
+    return filtered;
+  }
+
+  function debounce(fn, waitMs) {
+    var timer;
+    return function () {
+      var self = this;
+      var args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(self, args);
+      }, waitMs);
+    };
+  }
+
+  function mapViewportKey() {
+    var b = map.getBounds();
+    return (
+      map.getZoom() +
+      "|" +
+      b.getSouth().toFixed(4) +
+      "|" +
+      b.getWest().toFixed(4) +
+      "|" +
+      b.getNorth().toFixed(4) +
+      "|" +
+      b.getEast().toFixed(4)
+    );
   }
 
   function updateDeleteButton() {
@@ -638,6 +702,10 @@
   function redrawOsmFile() {
     osmFileLayer.clearLayers();
     if (!document.getElementById("osmFileToggle").checked) return;
+    if (map.getZoom() < 8) {
+      setStatus("OSM-Import: weiter heranzoomen (Zoom ≥ 8) für Flusslinien.");
+      return;
+    }
     featuresInViewport(osmFileFeatures, VIEWPORT_OSM_LIMIT).forEach(function (feature) {
       if (isBlockedOsm(feature.properties)) return;
       var layer = featureToLayer(feature, osmStyle());
@@ -694,9 +762,25 @@
       clearDrawMode();
       cancelTrim();
       upstreamPickMode = false;
+    } else if (window.FlowTrailPoi) {
+      FlowTrailPoi.onModeChange(mode);
     }
-    if (window.FlowTrailPoi) FlowTrailPoi.onModeChange(mode);
     closeAllSidebars();
+    if (mode === "pois" && window.FlowTrailPoi) {
+      setStatus("Lade POI-Daten …");
+      FlowTrailPoi.ensureLoaded()
+        .then(function () {
+          FlowTrailPoi.onModeChange("pois");
+          updateStatusCounts();
+          setStatus(
+            "POI-Modus (" + FlowTrailPoi.featureCount() + " gesamt, nur sichtbarer Ausschnitt)."
+          );
+        })
+        .catch(function (err) {
+          setStatus("POI laden: " + err.message);
+        });
+      return;
+    }
     updateStatusCounts();
   }
 
@@ -1225,30 +1309,48 @@
     openEditor(communityFeatures.length - 1);
   });
 
-  map.on("moveend", function () {
-    redrawOsmFile();
-    redrawOsmLive();
-    if (document.getElementById("osmLiveToggle").checked) loadOsmLiveViewport();
-  });
+  map.on("moveend", scheduleMapViewportChange);
+  map.on("zoomend", scheduleMapViewportChange);
 
   document.getElementById("osmFileToggle").onchange = function () {
     if (this.checked && !osmFileLoaded) loadOsmFile();
     else redrawOsmFile();
   };
   document.getElementById("osmLiveToggle").onchange = function () {
-    if (this.checked) loadOsmLiveViewport();
-    else { osmLiveLayer.clearLayers(); osmLiveFeatures = []; updateStatusCounts(); }
+    if (this.checked) {
+      osmLiveBoundsKey = "";
+      scheduleOsmLiveLoad();
+    } else {
+      if (osmLiveAbort) osmLiveAbort.abort();
+      osmLiveBoundsKey = "";
+      osmLiveLayer.clearLayers();
+      osmLiveFeatures = [];
+      updateStatusCounts();
+    }
   };
 
   function loadOsmLiveViewport() {
     if (!document.getElementById("osmLiveToggle").checked) return;
+    if (map.getZoom() < OSM_LIVE_MIN_ZOOM) {
+      osmLiveLayer.clearLayers();
+      osmLiveFeatures = [];
+      setStatus("OSM-Live: ab Zoom " + OSM_LIVE_MIN_ZOOM + " (weniger Daten beim Zoomen).");
+      return;
+    }
+    var key = mapViewportKey();
+    if (key === osmLiveBoundsKey) return;
+    osmLiveBoundsKey = key;
+    if (osmLiveAbort) osmLiveAbort.abort();
+    osmLiveAbort = new AbortController();
     var b = map.getBounds();
     var q = '[out:json][timeout:25];way["waterway"~"^(river|stream|canal)$"](' +
       b.getSouth() + "," + b.getWest() + "," + b.getNorth() + "," + b.getEast() + ");out geom;";
+    setStatus("OSM-Live: lade Ausschnitt …");
     fetch(OVERPASS_URL, {
       method: "POST",
       body: "data=" + encodeURIComponent(q),
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      signal: osmLiveAbort.signal
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -1265,9 +1367,23 @@
           };
         });
         redrawOsmLive();
+        updateStatusCounts();
       })
-      .catch(function (err) { setStatus("OSM-Live: " + err.message); });
+      .catch(function (err) {
+        if (err.name === "AbortError") return;
+        setStatus("OSM-Live: " + err.message);
+      });
   }
+
+  var scheduleOsmLiveLoad = debounce(loadOsmLiveViewport, 900);
+
+  function onMapViewportChange() {
+    redrawOsmFile();
+    redrawOsmLive();
+    if (document.getElementById("osmLiveToggle").checked) scheduleOsmLiveLoad();
+  }
+
+  var scheduleMapViewportChange = debounce(onMapViewportChange, 400);
 
   function normalizeFeature(f) {
     if (!f.properties) f.properties = {};
@@ -1346,14 +1462,12 @@
     });
   }
 
-  Promise.all([
-    loadCommunity(),
-    loadRiverGuides(),
-    window.FlowTrailPoi ? FlowTrailPoi.load() : Promise.resolve()
-  ])
+  setStatus("Karte bereit — lade Gewässer …");
+  loadCommunity()
     .then(function () {
       updateStatusCounts();
-      setStatus("Gewässer, Flussführer und POIs aus den Repos geladen.");
+      setStatus("Gewässer geladen. POIs/Flussführer bei Bedarf (Tab wechseln).");
+      loadRiverGuides().then(updateStatusCounts).catch(function () {});
       if (new URLSearchParams(location.search).get("mode") === "pois") {
         setEditorMode("pois");
       }

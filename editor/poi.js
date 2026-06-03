@@ -25,6 +25,12 @@
   var pegelLiveByKey = {};
   var rulesDocument = null;
   var rulesDirty = false;
+  var poiDataLoaded = false;
+  var pegelCatalogLoaded = false;
+  var pegelLiveLoaded = false;
+  var poiRedrawTimer = null;
+  var POI_VIEWPORT_LIMIT = 250;
+  var POI_VIEWPORT_MIN = 80;
 
   var poiLayer = null;
   var osmWeirLayer = null;
@@ -246,30 +252,73 @@
     var isPegel = type === "Pegel";
     document.getElementById("poiPegelFields").classList.toggle("hidden", !isPegel);
     document.getElementById("poiGenericFields").classList.toggle("hidden", isPegel);
+    if (isPegel) ensurePegelCatalog().then(applyPegelSelectionToForm);
   }
 
-  function loadPegelCatalog() {
-    return Promise.all([
-      fetch(RULES_RAW).then(function (r) {
+  function loadPegelRulesOnly() {
+    if (pegelCatalogLoaded && rulesDocument) return Promise.resolve();
+    return fetch(RULES_RAW)
+      .then(function (r) {
         if (!r.ok) throw new Error("rules.json HTTP " + r.status);
         return r.json();
-      }),
-      fetch(PEGEL_RAW).then(function (r) {
+      })
+      .then(function (data) {
+        rulesDocument = data;
+        if (!rulesDocument.rules) rulesDocument = { version: "", label: "", rules: [] };
+        pegelCatalogLoaded = true;
+        rebuildPegelSectionsFromRules();
+      });
+  }
+
+  function loadPegelLiveOptional() {
+    if (pegelLiveLoaded) return Promise.resolve();
+    return fetch(PEGEL_RAW)
+      .then(function (r) {
         return r.ok ? r.json() : { sections: [] };
       })
-    ])
-      .then(function (results) {
-        rulesDocument = results[0];
-        if (!rulesDocument.rules) rulesDocument = { version: "", label: "", rules: [] };
+      .then(function (data) {
         pegelLiveByKey = {};
-        (results[1].sections || []).forEach(function (s) {
+        (data.sections || []).forEach(function (s) {
           pegelLiveByKey[pegelRuleKey(s.river, s.station)] = s;
         });
+        pegelLiveLoaded = true;
         rebuildPegelSectionsFromRules();
       })
-      .catch(function (err) {
-        setStatus("Pegel-Regeln: " + err.message);
+      .catch(function () {
+        pegelLiveLoaded = true;
       });
+  }
+
+  function ensurePegelCatalog() {
+    return loadPegelRulesOnly().then(function () {
+      return loadPegelLiveOptional();
+    });
+  }
+
+  function poiIndicesToDraw() {
+    if (poiFeatures.length <= POI_VIEWPORT_MIN) {
+      return poiFeatures.map(function (_f, i) {
+        return i;
+      });
+    }
+    if (!map || !map.getBounds || !map.getBounds().isValid()) {
+      return poiFeatures.map(function (_f, i) {
+        return i;
+      }).slice(0, POI_VIEWPORT_LIMIT);
+    }
+    var bounds = map.getBounds();
+    var indices = [];
+    for (var i = 0; i < poiFeatures.length; i++) {
+      if (bounds.contains(featureLatLng(poiFeatures[i]))) indices.push(i);
+      if (indices.length >= POI_VIEWPORT_LIMIT) break;
+    }
+    return indices;
+  }
+
+  function schedulePoiRedraw() {
+    if (!bridge.isPoisMode()) return;
+    clearTimeout(poiRedrawTimer);
+    poiRedrawTimer = setTimeout(redrawPois, 350);
   }
 
   function makeCommunityIcon(type) {
@@ -333,7 +382,9 @@
 
   function redrawPois() {
     poiLayer.clearLayers();
-    poiFeatures.forEach(function (feature, index) {
+    if (!bridge.isPoisMode()) return;
+    poiIndicesToDraw().forEach(function (index) {
+      var feature = poiFeatures[index];
       var props = feature.properties;
       var marker = L.marker(featureLatLng(feature), {
         icon: makeCommunityIcon(props.type),
@@ -354,12 +405,21 @@
   }
 
   function featuresInViewport(features, limit) {
+    if (!features.length || !map.getBounds().isValid()) return [];
     var bounds = map.getBounds();
-    var filtered = features.filter(function (f) {
-      return bounds.contains(featureLatLng(f));
-    });
-    if (filtered.length > limit) return filtered.slice(0, limit);
+    var filtered = [];
+    for (var i = 0; i < features.length; i++) {
+      if (bounds.contains(featureLatLng(features[i]))) filtered.push(features[i]);
+      if (filtered.length >= limit) break;
+    }
     return filtered;
+  }
+
+  var osmWeirRedrawTimer = null;
+  function scheduleOsmWeirRedraw() {
+    if (!bridge.isPoisMode()) return;
+    clearTimeout(osmWeirRedrawTimer);
+    osmWeirRedrawTimer = setTimeout(redrawOsmWeirs, 400);
   }
 
   function redrawOsmWeirs() {
@@ -461,7 +521,7 @@
     setStatus("OSM-Wehr als Community-POI übernommen.");
   }
 
-  function loadCommunity() {
+  function loadCommunityPois() {
     return fetch(rawBase + "community-pois.geojson")
       .then(function (r) {
         if (!r.ok) throw new Error("community-pois.geojson HTTP " + r.status);
@@ -469,8 +529,14 @@
       })
       .then(function (data) {
         poiFeatures = data.features || [];
-        redrawPois();
+        poiDataLoaded = true;
+        if (bridge.isPoisMode()) schedulePoiRedraw();
       });
+  }
+
+  function ensureLoaded() {
+    if (poiDataLoaded) return Promise.resolve();
+    return loadCommunityPois();
   }
 
   function loadOsmWeirs() {
@@ -608,20 +674,35 @@
         openPoiEditor(poiFeatures.length - 1);
       });
 
-      map.on("moveend", redrawOsmWeirs);
+      map.on("moveend", function () {
+        scheduleOsmWeirRedraw();
+        schedulePoiRedraw();
+      });
+      map.on("zoomend", function () {
+        scheduleOsmWeirRedraw();
+        schedulePoiRedraw();
+      });
     },
 
     load: function () {
-      return Promise.all([loadCommunity(), loadPegelCatalog()]);
+      return Promise.resolve();
     },
+
+    ensureLoaded: ensureLoaded,
+    ensurePegelCatalog: ensurePegelCatalog,
 
     closeSidebar: closePoiSidebar,
 
     onModeChange: function (mode) {
       poiAddMode = false;
       document.getElementById("btnPoiAdd").classList.remove("active");
-      redrawPois();
-      redrawOsmWeirs();
+      if (mode === "pois") {
+        schedulePoiRedraw();
+        scheduleOsmWeirRedraw();
+      } else {
+        poiLayer.clearLayers();
+        osmWeirLayer.clearLayers();
+      }
     },
 
     getStatusSuffix: function () {
