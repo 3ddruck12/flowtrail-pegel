@@ -16,6 +16,16 @@
         <button type="button" class="btn secondary mode-btn active" data-mode="waterways">Gewässer</button>
         <button type="button" class="btn secondary mode-btn" data-mode="pois">POIs</button>
       </div>
+      <label class="basemap-select">Karte
+        <select id="basemapSelect" title="Hintergrundkarte">
+          <option value="carto">CARTO Voyager</option>
+          <option value="osm">OpenStreetMap</option>
+          <option value="topo">OpenTopoMap</option>
+          <option value="humanitarian">Humanitarian HOT</option>
+          <option value="carto_light">CARTO Positron (hell)</option>
+          <option value="carto_dark">CARTO Dark Matter</option>
+        </select>
+      </label>
     </div>
     <div id="toolbarWaterways" class="toolbar-actions">
       <label class="toggle"><input type="checkbox" id="osmFileToggle" /> OSM-Import</label>

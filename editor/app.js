@@ -18,13 +18,64 @@
   var osmLiveAbort = null;
   var osmLiveBoundsKey = "";
 
+  var BASEMAP_STORAGE_KEY = "flowtrail_editor_basemap";
+  var currentBasemapLayer = null;
+  var TILE_LAYERS = {
+    carto: {
+      url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+      attribution: "© OSM © CARTO",
+      options: { maxZoom: 20, subdomains: "abcd" }
+    },
+    carto_light: {
+      url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      attribution: "© OSM © CARTO",
+      options: { maxZoom: 20, subdomains: "abcd" }
+    },
+    carto_dark: {
+      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      attribution: "© OSM © CARTO",
+      options: { maxZoom: 20, subdomains: "abcd" }
+    },
+    osm: {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: "© OpenStreetMap",
+      options: { maxZoom: 19, subdomains: "abc" }
+    },
+    topo: {
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      attribution: "© OpenTopoMap © OSM",
+      options: { maxZoom: 17, subdomains: "abc" }
+    },
+    humanitarian: {
+      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+      attribution: "© OSM © HOT",
+      options: { maxZoom: 19, subdomains: "abc" }
+    }
+  };
+
+  function switchBasemap(layerId) {
+    var cfg = TILE_LAYERS[layerId] || TILE_LAYERS.carto;
+    if (currentBasemapLayer) map.removeLayer(currentBasemapLayer);
+    currentBasemapLayer = L.tileLayer(cfg.url, Object.assign({ attribution: cfg.attribution }, cfg.options));
+    currentBasemapLayer.addTo(map);
+    try {
+      sessionStorage.setItem(BASEMAP_STORAGE_KEY, layerId);
+    } catch (e) { /* ignore */ }
+    var sel = document.getElementById("basemapSelect");
+    if (sel && sel.value !== layerId) sel.value = layerId;
+  }
+
   var map = L.map("map", { zoomControl: false }).setView([51.45, 7.45], 9);
   L.control.zoom({ position: "bottomright" }).addTo(map);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-    attribution: "© OSM © CARTO",
-    maxZoom: 19,
-    subdomains: "abcd"
-  }).addTo(map);
+  var initialBasemap = "carto";
+  try {
+    initialBasemap = sessionStorage.getItem(BASEMAP_STORAGE_KEY) || "carto";
+  } catch (e) { /* ignore */ }
+  if (!TILE_LAYERS[initialBasemap]) initialBasemap = "carto";
+  switchBasemap(initialBasemap);
+  document.getElementById("basemapSelect").onchange = function () {
+    switchBasemap(this.value);
+  };
 
   map.pm.setLang("de");
   map.pm.addControls({
