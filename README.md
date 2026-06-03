@@ -58,6 +58,13 @@ Import filtert auf `waterway=river` und `waterway=canal` (keine Gräben/Bäche) 
 
 ## Regeln bearbeiten
 
+### Eigene Pegel pflegen + auf der Karte zuordnen
+
+1. **Regeln** in [`data/rules.json`](data/rules.json) (manuell oder im Editor Tab POIs → Typ Pegel → „Regel in rules.json übernehmen“).
+2. **Karten-POI** Typ Pegel: Position setzen, Fluss/Messstelle aus Liste **oder Freitext**, optional PEGELONLINE-UUID / OpenHygon-ID.
+3. **In Repos speichern** → schreibt `rules.json` + `community-pois.geojson`.
+4. GitHub Action **update-pegel** baut `pegel.json` (Live-Werte für die App).
+
 `data/rules.json` anpassen — Beispiel:
 
 ```json

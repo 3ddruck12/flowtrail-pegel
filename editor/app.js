@@ -1155,8 +1155,14 @@
         );
       })
       .then(function () {
+        if (!window.FlowTrailPoi || !FlowTrailPoi.isRulesDirty()) return;
+        var rulesJson = FlowTrailPoi.exportRulesJson();
+        if (!rulesJson) return;
+        return putFile(API_BASE, "data/rules.json", rulesJson, "editor: pegel rules");
+      })
+      .then(function () {
         setStatus(
-          "Gespeichert (pegel + pois). Nach ~1 Min.: App → POI- und Flussläufe aktualisieren."
+          "Gespeichert. POI-/Fluss-Update in der App; bei neuen Regeln: Action „update-pegel“ (pegel.json)."
         );
       })
       .catch(function (err) {

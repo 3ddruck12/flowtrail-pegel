@@ -132,17 +132,29 @@
           <label>Fluss (optional) <input type="text" id="poiRiver" /></label>
         </div>
         <div id="poiPegelFields" class="hidden">
-          <p class="sidebar-hint">Messstelle aus flowtrail-pegel (rules.json) — Position setzt du auf der Karte.</p>
-          <label>Fluss (Pegel)
-            <select id="pegelRiverSelect"><option value="">— Fluss wählen —</option></select>
+          <p class="sidebar-hint">Deine Pegel-Regeln aus <code>data/rules.json</code> — Position auf der Karte setzen, Messstelle zuordnen.</p>
+          <label class="toggle">
+            <input type="checkbox" id="pegelManualToggle" />
+            Eigene Messstelle (Freitext, nicht in Liste)
           </label>
-          <label>Messstelle
-            <select id="pegelStationSelect"><option value="">— Messstelle wählen —</option></select>
-          </label>
+          <div id="pegelSelectFields">
+            <label>Fluss (aus rules.json)
+              <select id="pegelRiverSelect"><option value="">— Fluss wählen —</option></select>
+            </label>
+            <label>Messstelle
+              <select id="pegelStationSelect"><option value="">— Messstelle wählen —</option></select>
+            </label>
+          </div>
+          <div id="pegelManualFields" class="hidden">
+            <label>Fluss <input type="text" id="pegelRiverManual" placeholder="z. B. Lenne" /></label>
+            <label>Messstelle <input type="text" id="pegelStationManual" placeholder="z. B. Balve" /></label>
+          </div>
           <label class="sidebar-meta">Regel-ID <input type="text" id="pegelRuleId" readonly /></label>
-          <label class="sidebar-meta">PEGELONLINE-UUID <input type="text" id="pegelonlineUuid" readonly placeholder="optional" /></label>
-          <label class="sidebar-meta">Landes-ID (OpenHygon) <input type="text" id="pegelExternalId" readonly placeholder="optional" /></label>
+          <label>PEGELONLINE-UUID <input type="text" id="pegelonlineUuid" placeholder="optional, z. B. aus PEGELONLINE" /></label>
+          <label>Landes-ID (OpenHygon) <input type="text" id="pegelExternalId" placeholder="optional" /></label>
+          <label>Mindestpegel (cm) <input type="number" id="pegelMinCm" min="0" step="1" placeholder="für neue Regel" /></label>
           <p id="pegelLiveHint" class="sidebar-hint"></p>
+          <button type="button" class="btn secondary" id="btnPegelEnsureRule">Regel in rules.json übernehmen</button>
         </div>
         <label>Beschreibung <textarea id="poiDescription" rows="4"></textarea></label>
         <label id="poiReplacesRow" class="hidden">Ersetzt OSM-ID

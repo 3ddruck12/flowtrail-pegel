@@ -11,14 +11,20 @@
     "Verboten",
     "Pegel"
   ];
-  var PEGEL_RAW =
-    "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/pegel.json";
+  var PEGEL_REPO_RAW =
+    "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/";
+  var PEGEL_RAW = PEGEL_REPO_RAW + "pegel.json";
+  var RULES_RAW = PEGEL_REPO_RAW + "data/rules.json";
+  var RULES_PATH = "data/rules.json";
   var VIEWPORT_OSM_LIMIT = 500;
 
   var bridge;
   var map;
   var rawBase;
   var pegelSections = [];
+  var pegelLiveByKey = {};
+  var rulesDocument = null;
+  var rulesDirty = false;
 
   var poiLayer = null;
   var osmWeirLayer = null;
@@ -55,6 +61,101 @@
     return pegelSections.find(function (s) {
       return s.river === river && s.station === station;
     });
+  }
+
+  function findRule(river, station) {
+    if (!rulesDocument || !rulesDocument.rules) return null;
+    return rulesDocument.rules.find(function (r) {
+      return r.river === river && r.station === station;
+    });
+  }
+
+  function rebuildPegelSectionsFromRules() {
+    if (!rulesDocument || !rulesDocument.rules) return;
+    pegelSections = rulesDocument.rules.map(function (rule) {
+      var key = pegelRuleKey(rule.river, rule.station);
+      var live = pegelLiveByKey[key];
+      return {
+        river: rule.river,
+        station: rule.station,
+        pegelonline_uuid: rule.pegelonline_uuid || null,
+        external_station_id: rule.external_station_id || null,
+        min_cm: rule.min_cm,
+        current: live ? live.current : null,
+        label: live ? live.label : null,
+        source: live ? live.source : null,
+        hint: rule.hint
+      };
+    });
+    refreshPegelRiverSelect();
+  }
+
+  function togglePegelManualFields() {
+    var manual = document.getElementById("pegelManualToggle").checked;
+    document.getElementById("pegelSelectFields").classList.toggle("hidden", manual);
+    document.getElementById("pegelManualFields").classList.toggle("hidden", !manual);
+    syncPegelRuleIdField();
+  }
+
+  function getPegelAssignment() {
+    var manual = document.getElementById("pegelManualToggle").checked;
+    if (manual) {
+      return {
+        river: document.getElementById("pegelRiverManual").value.trim(),
+        station: document.getElementById("pegelStationManual").value.trim()
+      };
+    }
+    return {
+      river: document.getElementById("pegelRiverSelect").value.trim(),
+      station: document.getElementById("pegelStationSelect").value.trim()
+    };
+  }
+
+  function syncPegelRuleIdField() {
+    var a = getPegelAssignment();
+    document.getElementById("pegelRuleId").value =
+      a.river && a.station ? pegelRuleKey(a.river, a.station) : "";
+  }
+
+  function ensureRuleInRulesJson(river, station, opts) {
+    if (!rulesDocument) {
+      setStatus("rules.json nicht geladen.");
+      return false;
+    }
+    if (!river || !station) {
+      setStatus("Fluss und Messstelle angeben.");
+      return false;
+    }
+    var minCm = parseFloat(document.getElementById("pegelMinCm").value);
+    if (isNaN(minCm) || minCm <= 0) minCm = 50;
+    var existing = findRule(river, station);
+    if (existing) {
+      if (opts.pegelonline_uuid !== undefined) existing.pegelonline_uuid = opts.pegelonline_uuid;
+      if (opts.external_station_id !== undefined) {
+        existing.external_station_id = opts.external_station_id;
+      }
+      if (opts.hint) existing.hint = opts.hint;
+    } else {
+      rulesDocument.rules.push({
+        river: river,
+        station: station,
+        min_cm: minCm,
+        ideal_min_cm: minCm,
+        ideal_max_cm: Math.round(minCm * 1.6 + 25),
+        max_cm: Math.round(minCm * 2.5 + 60),
+        hint: opts.hint || "Community-Pegel (Editor)",
+        pegelonline_uuid: opts.pegelonline_uuid || null,
+        external_station_id: opts.external_station_id || null
+      });
+      rulesDocument.rules.sort(function (a, b) {
+        var c = a.river.localeCompare(b.river);
+        return c !== 0 ? c : a.station.localeCompare(b.station);
+      });
+    }
+    rulesDirty = true;
+    rebuildPegelSectionsFromRules();
+    setStatus("Regel „" + river + " · " + station + "“ in rules.json (lokal). Mit „In Repos speichern“ hochladen.");
+    return true;
   }
 
   function refreshPegelRiverSelect() {
@@ -102,25 +203,39 @@
   }
 
   function applyPegelSelectionToForm() {
-    var river = document.getElementById("pegelRiverSelect").value;
-    var station = document.getElementById("pegelStationSelect").value;
+    var a = getPegelAssignment();
+    var river = a.river;
+    var station = a.station;
     var sec = findPegelSection(river, station);
-    document.getElementById("pegelRuleId").value =
-      river && station ? pegelRuleKey(river, station) : "";
-    document.getElementById("pegelonlineUuid").value =
-      (sec && sec.pegelonline_uuid) || "";
-    document.getElementById("pegelExternalId").value =
-      (sec && sec.external_station_id) || "";
-    var hint = document.getElementById("pegelLiveHint");
-    if (!sec) {
-      hint.textContent = "";
+    var rule = findRule(river, station);
+    syncPegelRuleIdField();
+    if (!document.getElementById("pegelonlineUuid").value.trim()) {
+      document.getElementById("pegelonlineUuid").value =
+        (sec && sec.pegelonline_uuid) || (rule && rule.pegelonline_uuid) || "";
+    }
+    if (!document.getElementById("pegelExternalId").value.trim()) {
+      document.getElementById("pegelExternalId").value =
+        (sec && sec.external_station_id) || (rule && rule.external_station_id) || "";
+    }
+    if (rule && rule.min_cm != null) {
+      document.getElementById("pegelMinCm").value = String(rule.min_cm);
+    }
+    var hintEl = document.getElementById("pegelLiveHint");
+    if (!river || !station) {
+      hintEl.textContent = "";
+      return;
+    }
+    if (!sec && !rule) {
+      hintEl.textContent = "Noch keine Regel in rules.json — „Regel übernehmen“ oder Freitext + Speichern.";
       return;
     }
     var parts = [];
-    if (sec.current != null) parts.push("Stand: " + sec.current + " cm");
-    if (sec.label) parts.push(sec.label);
-    if (sec.source) parts.push("Quelle: " + sec.source);
-    hint.textContent = parts.join(" · ");
+    if (sec && sec.current != null) parts.push("Stand: " + sec.current + " cm");
+    if (sec && sec.label) parts.push(sec.label);
+    else if (!sec) parts.push("Live-Werte nach Speichern + Action „update-pegel“");
+    if (sec && sec.source) parts.push("Quelle: " + sec.source);
+    if (rule && rule.hint) parts.push(rule.hint);
+    hintEl.textContent = parts.join(" · ");
     if (!document.getElementById("poiName").value.trim()) {
       document.getElementById("poiName").value = "Pegel " + station;
     }
@@ -134,17 +249,26 @@
   }
 
   function loadPegelCatalog() {
-    return fetch(PEGEL_RAW)
-      .then(function (r) {
-        if (!r.ok) throw new Error("pegel.json HTTP " + r.status);
+    return Promise.all([
+      fetch(RULES_RAW).then(function (r) {
+        if (!r.ok) throw new Error("rules.json HTTP " + r.status);
         return r.json();
+      }),
+      fetch(PEGEL_RAW).then(function (r) {
+        return r.ok ? r.json() : { sections: [] };
       })
-      .then(function (data) {
-        pegelSections = data.sections || [];
-        refreshPegelRiverSelect();
+    ])
+      .then(function (results) {
+        rulesDocument = results[0];
+        if (!rulesDocument.rules) rulesDocument = { version: "", label: "", rules: [] };
+        pegelLiveByKey = {};
+        (results[1].sections || []).forEach(function (s) {
+          pegelLiveByKey[pegelRuleKey(s.river, s.station)] = s;
+        });
+        rebuildPegelSectionsFromRules();
       })
       .catch(function (err) {
-        setStatus("Pegel-Katalog: " + err.message);
+        setStatus("Pegel-Regeln: " + err.message);
       });
   }
 
@@ -291,9 +415,17 @@
     if (type === "Pegel") {
       var river = props.pegel_river || props.river || "";
       var station = props.pegel_station || "";
-      document.getElementById("pegelRiverSelect").value = river;
-      refreshPegelStationSelect();
-      document.getElementById("pegelStationSelect").value = station;
+      var inList = findPegelSection(river, station);
+      document.getElementById("pegelManualToggle").checked = !!(river && station && !inList);
+      togglePegelManualFields();
+      if (document.getElementById("pegelManualToggle").checked) {
+        document.getElementById("pegelRiverManual").value = river;
+        document.getElementById("pegelStationManual").value = station;
+      } else {
+        document.getElementById("pegelRiverSelect").value = river;
+        refreshPegelStationSelect();
+        document.getElementById("pegelStationSelect").value = station;
+      }
       document.getElementById("pegelRuleId").value = props.pegel_rule_id || "";
       document.getElementById("pegelonlineUuid").value = props.pegelonline_uuid || "";
       document.getElementById("pegelExternalId").value = props.external_station_id || "";
@@ -378,20 +510,25 @@
         props.description = document.getElementById("poiDescription").value.trim();
         props.source = "community";
         if (props.type === "Pegel") {
-          var pRiver = document.getElementById("pegelRiverSelect").value.trim();
-          var pStation = document.getElementById("pegelStationSelect").value.trim();
+          var assign = getPegelAssignment();
+          var pRiver = assign.river;
+          var pStation = assign.station;
           if (!pRiver || !pStation) {
-            setStatus("Pegel-POI: Fluss und Messstelle auswählen.");
+            setStatus("Pegel-POI: Fluss und Messstelle angeben oder aus Liste wählen.");
             return;
           }
+          var uuid = document.getElementById("pegelonlineUuid").value.trim();
+          var extId = document.getElementById("pegelExternalId").value.trim();
+          ensureRuleInRulesJson(pRiver, pStation, {
+            pegelonline_uuid: uuid || null,
+            external_station_id: extId || null
+          });
           props.pegel_river = pRiver;
           props.pegel_station = pStation;
           props.river = pRiver;
           props.pegel_rule_id = pegelRuleKey(pRiver, pStation);
-          props.pegelonline_uuid =
-            document.getElementById("pegelonlineUuid").value.trim() || null;
-          props.external_station_id =
-            document.getElementById("pegelExternalId").value.trim() || null;
+          props.pegelonline_uuid = uuid || null;
+          props.external_station_id = extId || null;
           delete props.replaces_osm_id;
         } else {
           props.river = document.getElementById("poiRiver").value.trim();
@@ -422,8 +559,21 @@
       document.getElementById("poiType").addEventListener("change", function () {
         togglePoiFieldPanels(document.getElementById("poiType").value);
       });
+      document.getElementById("pegelManualToggle").addEventListener("change", function () {
+        togglePegelManualFields();
+        applyPegelSelectionToForm();
+      });
       document.getElementById("pegelRiverSelect").addEventListener("change", refreshPegelStationSelect);
       document.getElementById("pegelStationSelect").addEventListener("change", applyPegelSelectionToForm);
+      document.getElementById("pegelRiverManual").addEventListener("input", applyPegelSelectionToForm);
+      document.getElementById("pegelStationManual").addEventListener("input", applyPegelSelectionToForm);
+      document.getElementById("btnPegelEnsureRule").addEventListener("click", function () {
+        var a = getPegelAssignment();
+        ensureRuleInRulesJson(a.river, a.station, {
+          pegelonline_uuid: document.getElementById("pegelonlineUuid").value.trim() || null,
+          external_station_id: document.getElementById("pegelExternalId").value.trim() || null
+        });
+      });
 
       document.getElementById("btnPoiAdd").addEventListener("click", function () {
         poiAddMode = !poiAddMode;
@@ -484,6 +634,16 @@
 
     featureCount: function () {
       return poiFeatures.length;
+    },
+
+    isRulesDirty: function () {
+      return rulesDirty;
+    },
+
+    exportRulesJson: function () {
+      if (!rulesDocument) return null;
+      rulesDocument.version = new Date().toISOString().slice(0, 10);
+      return JSON.stringify(rulesDocument, null, 2) + "\n";
     }
   };
 })();
