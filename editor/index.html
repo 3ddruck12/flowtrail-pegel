@@ -3,28 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FlowTrail Gewässer-Editor</title>
+  <title>FlowTrail Karten-Editor</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="toolbar">
-    <h1>FlowTrail Gewässer-Editor</h1>
-    <div class="toolbar-actions">
+    <div class="toolbar-title-row">
+      <h1>FlowTrail Karten-Editor</h1>
+      <div class="mode-switch">
+        <button type="button" class="btn secondary mode-btn active" data-mode="waterways">Gewässer</button>
+        <button type="button" class="btn secondary mode-btn" data-mode="pois">POIs</button>
+      </div>
+    </div>
+    <div id="toolbarWaterways" class="toolbar-actions">
       <label class="toggle"><input type="checkbox" id="osmFileToggle" /> OSM-Import</label>
       <label class="toggle"><input type="checkbox" id="osmLiveToggle" /> OSM-Live</label>
       <span class="toolbar-group-label">Zeichnen:</span>
       <button type="button" class="btn secondary tool-btn" data-draw="waterway">Fluss</button>
       <button type="button" class="btn secondary tool-btn" data-draw="portage">Umtrag</button>
       <button type="button" class="btn secondary tool-btn" data-draw="portage_road">Weg/Straße</button>
-      <button type="button" class="btn secondary tool-btn" data-draw="einstieg">Einstieg</button>
-      <button type="button" class="btn secondary tool-btn" data-draw="ausstieg">Ausstieg</button>
+      <button type="button" class="btn secondary tool-btn" data-draw="einstieg" title="Umtrag-Einstieg am Gewässer">Umtrag E</button>
+      <button type="button" class="btn secondary tool-btn" data-draw="ausstieg" title="Umtrag-Ausstieg am Gewässer">Umtrag A</button>
       <button type="button" class="btn secondary" id="btnTrim">Stutzen</button>
       <button type="button" class="btn secondary" id="btnPanelGuide">Flussführer</button>
       <button type="button" class="btn secondary" id="btnExport">Download</button>
-      <button type="button" class="btn primary" id="btnSaveRepo">In Repo speichern</button>
+      <button type="button" class="btn primary" id="btnSaveRepo">In Repos speichern</button>
       <button type="button" class="btn secondary" id="btnToken" title="GitHub Token">Token</button>
+    </div>
+    <div id="toolbarPois" class="toolbar-actions hidden">
+      <label class="toggle"><input type="checkbox" id="poiOsmToggle" /> OSM-Wehre</label>
+      <button type="button" class="btn secondary" id="btnPoiAdd">POI setzen</button>
+      <button type="button" class="btn secondary" id="btnPoiExport">POI-Download</button>
+      <p class="toolbar-hint">Navigation-POIs (Wehr, Rastplatz …) — getrennt von Umtrag-E/A im Gewässer-Modus.</p>
+      <button type="button" class="btn primary" id="btnSaveRepoPoi">In Repos speichern</button>
+      <button type="button" class="btn secondary" id="btnTokenPoi" title="GitHub Token">Token</button>
     </div>
   </header>
 
@@ -33,7 +47,7 @@
       <h2>GitHub-Zugang</h2>
       <p class="dialog-hint">
         Fine-grained PAT mit <strong>Contents: Read and write</strong> für
-        <code>3ddruck12/flowtrail-pegel</code>.
+        <code>3ddruck12/flowtrail-pegel</code> und <code>3ddruck12/flowtrail-pois</code>.
         <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Token erstellen</a>
       </p>
       <label>Token <input type="password" id="githubToken" autocomplete="off" /></label>
@@ -95,6 +109,35 @@
         </div>
       </form>
     </aside>
+    <aside class="sidebar hidden" id="poiSidebar">
+      <h2>Navigation-POI</h2>
+      <p class="sidebar-hint">Wehr, Rastplatz, Verboten … — gespeichert in flowtrail-pois.</p>
+      <form id="poiForm">
+        <input type="hidden" id="poiIndex" value="-1" />
+        <label>Name <input type="text" id="poiName" required /></label>
+        <label>Typ
+          <select id="poiType">
+            <option>Einstieg</option>
+            <option>Ausstieg</option>
+            <option>Rastplatz</option>
+            <option>Wehr</option>
+            <option>Schleuse</option>
+            <option>Gefahrenstelle</option>
+            <option>Verboten</option>
+          </select>
+        </label>
+        <label>Fluss (optional) <input type="text" id="poiRiver" /></label>
+        <label>Beschreibung <textarea id="poiDescription" rows="4"></textarea></label>
+        <label id="poiReplacesRow" class="hidden">Ersetzt OSM-ID
+          <input type="text" id="poiReplacesOsm" readonly />
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Speichern</button>
+          <button type="button" class="btn danger" id="btnPoiDelete">Löschen</button>
+          <button type="button" class="btn secondary" id="btnPoiClose">Schließen</button>
+        </div>
+      </form>
+    </aside>
     <aside class="sidebar hidden" id="guideSidebar">
       <h2>Flussführer</h2>
       <p class="sidebar-hint">Beschreibung und Abschnitts-Regeln pro Fluss (gespeichert in river-guides.json).</p>
@@ -115,11 +158,20 @@
     </aside>
   </div>
 
-  <footer class="status" id="statusBar">Lade Community-Daten aus GitHub …</footer>
+  <footer class="status" id="statusBar">Lade Daten aus GitHub …</footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.3/dist/leaflet-geoman.min.js"></script>
   <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+  <script src="poi.js"></script>
   <script src="app.js"></script>
+  <script>
+    document.getElementById("btnSaveRepoPoi").onclick = function () {
+      document.getElementById("btnSaveRepo").click();
+    };
+    document.getElementById("btnTokenPoi").onclick = function () {
+      document.getElementById("btnToken").click();
+    };
+  </script>
 </body>
 </html>

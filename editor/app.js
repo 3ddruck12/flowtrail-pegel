@@ -2,12 +2,16 @@
   "use strict";
 
   var REPO = "3ddruck12/flowtrail-pegel";
+  var POIS_REPO = "3ddruck12/flowtrail-pois";
   var BRANCH = "main";
   var COMMUNITY_PATH = "community-waterways.geojson";
+  var POIS_COMMUNITY_PATH = "community-pois.geojson";
   var GUIDES_PATH = "river-guides.json";
   var TOKEN_KEY = "flowtrail_github_token";
   var RAW_BASE = "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/";
   var API_BASE = "https://api.github.com/repos/" + REPO;
+  var POIS_API_BASE = "https://api.github.com/repos/" + POIS_REPO;
+  var editorMode = "waterways";
   var OVERPASS_URL = "https://overpass-api.de/api/interpreter";
   var VIEWPORT_OSM_LIMIT = 300;
 
@@ -425,11 +429,36 @@
       var k = featureKind(f);
       kinds[k] = (kinds[k] || 0) + 1;
     });
+    var poiSuffix = window.FlowTrailPoi ? FlowTrailPoi.getStatusSuffix() : "";
     setStatus(
-      "Community: " + kinds.waterway + " Fluss · " + kinds.portage + " Umtrag · " +
-        kinds.portage_road + " Weg · " + kinds.einstieg + " E · " + kinds.ausstieg + " A · " +
-        riverGuides.rivers.length + " Flussführer"
+      "Gewässer: " + kinds.waterway + " Fluss · " + kinds.portage + " Umtrag · " +
+        kinds.portage_road + " Weg · " + kinds.einstieg + " Umtrag-E · " + kinds.ausstieg + " Umtrag-A · " +
+        riverGuides.rivers.length + " Flussführer" + poiSuffix
     );
+  }
+
+  function closeAllSidebars() {
+    closeSidebar();
+    guideSidebar.classList.add("hidden");
+    if (window.FlowTrailPoi) FlowTrailPoi.closeSidebar();
+  }
+
+  function setEditorMode(mode) {
+    editorMode = mode;
+    document.querySelectorAll(".mode-btn").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.mode === mode);
+    });
+    document.getElementById("toolbarWaterways").classList.toggle("hidden", mode !== "waterways");
+    document.getElementById("toolbarPois").classList.toggle("hidden", mode !== "pois");
+    if (mode === "pois") {
+      clearDrawMode();
+      trimMode = false;
+      upstreamPickMode = false;
+      document.getElementById("btnTrim").classList.remove("active");
+    }
+    if (window.FlowTrailPoi) FlowTrailPoi.onModeChange(mode);
+    closeAllSidebars();
+    updateStatusCounts();
   }
 
   function clearDrawMode() {
@@ -441,6 +470,7 @@
   }
 
   function startDrawMode(mode) {
+    if (editorMode !== "waterways") return;
     clearDrawMode();
     trimMode = false;
     upstreamPickMode = false;
@@ -693,7 +723,7 @@
   }
 
   function openGuidePanel() {
-    closeSidebar();
+    closeAllSidebars();
     guideSidebar.classList.remove("hidden");
     refreshGuideRiverSelect();
   }
@@ -817,8 +847,8 @@
     };
   }
 
-  function fetchSha(path) {
-    return fetch(API_BASE + "/contents/" + path + "?ref=" + BRANCH, { headers: githubHeaders() })
+  function fetchSha(apiBase, path) {
+    return fetch(apiBase + "/contents/" + path + "?ref=" + BRANCH, { headers: githubHeaders() })
       .then(function (r) {
         if (r.status === 404) return null;
         if (!r.ok) return r.json().then(function (e) { throw new Error(e.message); });
@@ -826,12 +856,12 @@
       });
   }
 
-  function putFile(path, jsonText, message) {
+  function putFile(apiBase, path, jsonText, message) {
     var content = btoa(unescape(encodeURIComponent(jsonText)));
-    return fetchSha(path).then(function (sha) {
+    return fetchSha(apiBase, path).then(function (sha) {
       var body = { message: message, content: content, branch: BRANCH };
       if (sha) body.sha = sha;
-      return fetch(API_BASE + "/contents/" + path, {
+      return fetch(apiBase + "/contents/" + path, {
         method: "PUT",
         headers: Object.assign({ "Content-Type": "application/json" }, githubHeaders()),
         body: JSON.stringify(body)
@@ -849,12 +879,25 @@
     var geo = JSON.stringify(buildCommunityCollection(), null, 2) + "\n";
     riverGuides.version = new Date().toISOString().slice(0, 16);
     var guides = JSON.stringify(riverGuides, null, 2) + "\n";
-    putFile(COMMUNITY_PATH, geo, "editor: community map (" + communityFeatures.length + " features)")
+    var poiCount = window.FlowTrailPoi ? FlowTrailPoi.featureCount() : 0;
+    var poiJson = window.FlowTrailPoi ? FlowTrailPoi.exportJson() : null;
+    putFile(API_BASE, COMMUNITY_PATH, geo, "editor: community map (" + communityFeatures.length + " features)")
       .then(function () {
-        return putFile(GUIDES_PATH, guides, "editor: river guides (" + riverGuides.rivers.length + " rivers)");
+        return putFile(API_BASE, GUIDES_PATH, guides, "editor: river guides (" + riverGuides.rivers.length + " rivers)");
       })
       .then(function () {
-        setStatus("Gespeichert. Nach ~1 Min.: App → Flussläufe aktualisieren. Seite neu laden zeigt Daten.");
+        if (!poiJson) return;
+        return putFile(
+          POIS_API_BASE,
+          POIS_COMMUNITY_PATH,
+          poiJson,
+          "editor: community pois (" + poiCount + " features)"
+        );
+      })
+      .then(function () {
+        setStatus(
+          "Gespeichert (pegel + pois). Nach ~1 Min.: App → POI- und Flussläufe aktualisieren."
+        );
       })
       .catch(function (err) {
         setStatus("GitHub: " + err.message);
@@ -879,7 +922,7 @@
       return;
     }
     saveGuideLocal();
-    if (!confirm("Community-Karte + Flussführer nach GitHub speichern?")) return;
+    if (!confirm("Gewässer, Flussführer und POIs in die jeweiligen Repos speichern?")) return;
     saveToGithub();
   };
 
@@ -1018,10 +1061,36 @@
     openEditor(index);
   });
 
-  Promise.all([loadCommunity(), loadRiverGuides()])
+  document.querySelectorAll(".mode-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      setEditorMode(btn.dataset.mode);
+    });
+  });
+
+  if (window.FlowTrailPoi) {
+    FlowTrailPoi.init({
+      map: map,
+      rawBase: "https://raw.githubusercontent.com/" + POIS_REPO + "/" + BRANCH + "/",
+      setStatus: setStatus,
+      closeOthers: closeAllSidebars,
+      isPoisMode: function () {
+        return editorMode === "pois";
+      },
+      refreshStatus: updateStatusCounts
+    });
+  }
+
+  Promise.all([
+    loadCommunity(),
+    loadRiverGuides(),
+    window.FlowTrailPoi ? FlowTrailPoi.load() : Promise.resolve()
+  ])
     .then(function () {
       updateStatusCounts();
-      setStatus("Community + Flussführer aus Repo geladen.");
+      setStatus("Gewässer, Flussführer und POIs aus den Repos geladen.");
+      if (new URLSearchParams(location.search).get("mode") === "pois") {
+        setEditorMode("pois");
+      }
     })
     .catch(function (err) {
       setStatus("Laden fehlgeschlagen: " + err.message);

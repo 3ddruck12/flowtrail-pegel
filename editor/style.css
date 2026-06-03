@@ -4,8 +4,23 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 12px; padding: 10px 16px; background: #1e293b; border-bottom: 1px solid #334155;
 }
+.toolbar-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .toolbar h1 { margin: 0; font-size: 1.1rem; }
-.toolbar-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.mode-switch { display: flex; gap: 6px; }
+.mode-btn.active { outline: 2px solid #38bdf8; }
+.toolbar-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; width: 100%; }
+.toolbar-hint { margin: 0; font-size: 0.8rem; color: #94a3b8; flex: 1 1 100%; }
+.community-pin {
+  width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+.community-pin span {
+  display: block; transform: rotate(45deg); text-align: center; font-size: 9px; font-weight: bold; color: #fff;
+}
+.osm-pin {
+  width: 14px; height: 14px; border-radius: 50%; background: #64748b;
+  border: 2px solid #94a3b8; opacity: 0.85;
+}
 .layout { display: flex; height: calc(100% - 96px); }
 #map { flex: 1; min-height: 300px; }
 .sidebar {

@@ -26,16 +26,17 @@ Statische GeoJSON-Linien als Alternative zur langsamen Overpass-API in der App (
 | `scripts/import_osm_waterways.py` | OSM → `osm-waterways.geojson` |
 | `scripts/merge_waterways.py` | Community + OSM → `waterways.geojson` |
 
-**Editor:** [3ddruck12.github.io/flowtrail-pegel](https://3ddruck12.github.io/flowtrail-pegel/) (nach Push + Pages-Aktivierung)
+**Karten-Editor:** [3ddruck12.github.io/flowtrail-pegel](https://3ddruck12.github.io/flowtrail-pegel/) — Gewässer **und** POIs (Tab „POIs“)
 
 ### Gewässer bearbeiten
 
-1. [Editor](https://3ddruck12.github.io/flowtrail-pegel/) — lädt beim Start **Community + Flussführer** aus dem Repo
-2. **Zeichnen:** Fluss (blau) · **Umtrag** (gelb gestrichelt) · **Weg/Straße** · **Einstieg** (grün) · **Ausstieg** (rot)
-3. **Flussführer:** Beschreibung + Abschnitte mit Regeln pro Fluss (`river-guides.json`)
-4. **Token** + **In Repo speichern** → `community-waterways.geojson` + `river-guides.json`
-5. Action `merge-waterways` → `waterways.geojson` (~1 Min.)
-6. App: Info → **Flussläufe aktualisieren**
+1. [Editor](https://3ddruck12.github.io/flowtrail-pegel/) — lädt **Gewässer, Flussführer und POIs** aus den Repos
+2. Tab **Gewässer:** Fluss (blau) · **Umtrag** (gelb) · **Weg/Straße** · **Umtrag E/A** (am Gewässer)
+3. **Flussführer:** Beschreibung + Abschnitte mit Regeln (`river-guides.json`)
+4. Tab **POIs:** Navigation-POIs (Wehr, Rastplatz, Verboten …) → `flowtrail-pois`
+5. **Token** (Schreibrechte auf **pegel** + **pois**) + **In Repos speichern**
+6. Actions `merge-waterways` / `merge-pois` → App-Feeds (~1 Min.)
+7. App: Info → **Flussläufe** und **POI-Daten** aktualisieren
 
 | Datei | Inhalt |
 |-------|--------|
