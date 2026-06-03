@@ -33,7 +33,7 @@ Statische GeoJSON-Linien als Alternative zur langsamen Overpass-API in der App (
 1. [Editor](https://3ddruck12.github.io/flowtrail-pegel/) — lädt **Gewässer, Flussführer und POIs** aus den Repos
 2. Tab **Gewässer:** Fluss (blau) · **Umtrag** (gelb) · **Weg/Straße** · **Umtrag E/A** (am Gewässer)
 3. **Flussführer:** Beschreibung + Abschnitte mit Regeln (`river-guides.json`)
-4. Tab **POIs:** Navigation-POIs (Wehr, Rastplatz, Verboten …) → `flowtrail-pois`
+4. Tab **POIs:** Navigation-POIs (Wehr, Rastplatz, Verboten …) und **Pegel** (Messstelle aus `pegel.json` verknüpfen) → `flowtrail-pois`
 5. **Token** (Schreibrechte auf **pegel** + **pois**) + **In Repos speichern**
 6. Actions `merge-waterways` / `merge-pois` → App-Feeds (~1 Min.)
 7. App: Info → **Flussläufe** und **POI-Daten** aktualisieren

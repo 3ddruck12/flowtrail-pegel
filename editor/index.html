@@ -125,9 +125,25 @@
             <option>Schleuse</option>
             <option>Gefahrenstelle</option>
             <option>Verboten</option>
+            <option>Pegel</option>
           </select>
         </label>
-        <label>Fluss (optional) <input type="text" id="poiRiver" /></label>
+        <div id="poiGenericFields">
+          <label>Fluss (optional) <input type="text" id="poiRiver" /></label>
+        </div>
+        <div id="poiPegelFields" class="hidden">
+          <p class="sidebar-hint">Messstelle aus flowtrail-pegel (rules.json) — Position setzt du auf der Karte.</p>
+          <label>Fluss (Pegel)
+            <select id="pegelRiverSelect"><option value="">— Fluss wählen —</option></select>
+          </label>
+          <label>Messstelle
+            <select id="pegelStationSelect"><option value="">— Messstelle wählen —</option></select>
+          </label>
+          <label class="sidebar-meta">Regel-ID <input type="text" id="pegelRuleId" readonly /></label>
+          <label class="sidebar-meta">PEGELONLINE-UUID <input type="text" id="pegelonlineUuid" readonly placeholder="optional" /></label>
+          <label class="sidebar-meta">Landes-ID (OpenHygon) <input type="text" id="pegelExternalId" readonly placeholder="optional" /></label>
+          <p id="pegelLiveHint" class="sidebar-hint"></p>
+        </div>
         <label>Beschreibung <textarea id="poiDescription" rows="4"></textarea></label>
         <label id="poiReplacesRow" class="hidden">Ersetzt OSM-ID
           <input type="text" id="poiReplacesOsm" readonly />

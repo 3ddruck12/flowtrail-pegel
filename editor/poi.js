@@ -8,13 +8,17 @@
     "Wehr",
     "Schleuse",
     "Gefahrenstelle",
-    "Verboten"
+    "Verboten",
+    "Pegel"
   ];
+  var PEGEL_RAW =
+    "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/pegel.json";
   var VIEWPORT_OSM_LIMIT = 500;
 
   var bridge;
   var map;
   var rawBase;
+  var pegelSections = [];
 
   var poiLayer = null;
   var osmWeirLayer = null;
@@ -39,11 +43,114 @@
     if (t.indexOf("wehr") >= 0) return "#DC2626";
     if (t.indexOf("gefahr") >= 0) return "#9C27B0";
     if (t.indexOf("verboten") >= 0) return "#7c3aed";
+    if (t.indexOf("pegel") >= 0) return "#0284c7";
     return "#0078FF";
+  }
+
+  function pegelRuleKey(river, station) {
+    return (river || "").toLowerCase().trim() + "::" + (station || "").toLowerCase().trim();
+  }
+
+  function findPegelSection(river, station) {
+    return pegelSections.find(function (s) {
+      return s.river === river && s.station === station;
+    });
+  }
+
+  function refreshPegelRiverSelect() {
+    var sel = document.getElementById("pegelRiverSelect");
+    var rivers = {};
+    pegelSections.forEach(function (s) {
+      if (s.river) rivers[s.river] = true;
+    });
+    var current = sel.value;
+    sel.innerHTML = '<option value="">— Fluss wählen —</option>';
+    Object.keys(rivers)
+      .sort()
+      .forEach(function (r) {
+        var opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = r;
+        sel.appendChild(opt);
+      });
+    if (current && rivers[current]) sel.value = current;
+    refreshPegelStationSelect();
+  }
+
+  function refreshPegelStationSelect() {
+    var river = document.getElementById("pegelRiverSelect").value;
+    var sel = document.getElementById("pegelStationSelect");
+    var current = sel.value;
+    sel.innerHTML = '<option value="">— Messstelle wählen —</option>';
+    pegelSections
+      .filter(function (s) {
+        return s.river === river;
+      })
+      .sort(function (a, b) {
+        return a.station.localeCompare(b.station);
+      })
+      .forEach(function (s) {
+        var opt = document.createElement("option");
+        opt.value = s.station;
+        var label = s.station;
+        if (s.label) label += " (" + s.label + ")";
+        opt.textContent = label;
+        sel.appendChild(opt);
+      });
+    if (current) sel.value = current;
+    applyPegelSelectionToForm();
+  }
+
+  function applyPegelSelectionToForm() {
+    var river = document.getElementById("pegelRiverSelect").value;
+    var station = document.getElementById("pegelStationSelect").value;
+    var sec = findPegelSection(river, station);
+    document.getElementById("pegelRuleId").value =
+      river && station ? pegelRuleKey(river, station) : "";
+    document.getElementById("pegelonlineUuid").value =
+      (sec && sec.pegelonline_uuid) || "";
+    document.getElementById("pegelExternalId").value =
+      (sec && sec.external_station_id) || "";
+    var hint = document.getElementById("pegelLiveHint");
+    if (!sec) {
+      hint.textContent = "";
+      return;
+    }
+    var parts = [];
+    if (sec.current != null) parts.push("Stand: " + sec.current + " cm");
+    if (sec.label) parts.push(sec.label);
+    if (sec.source) parts.push("Quelle: " + sec.source);
+    hint.textContent = parts.join(" · ");
+    if (!document.getElementById("poiName").value.trim()) {
+      document.getElementById("poiName").value = "Pegel " + station;
+    }
+    document.getElementById("poiRiver").value = river;
+  }
+
+  function togglePoiFieldPanels(type) {
+    var isPegel = type === "Pegel";
+    document.getElementById("poiPegelFields").classList.toggle("hidden", !isPegel);
+    document.getElementById("poiGenericFields").classList.toggle("hidden", isPegel);
+  }
+
+  function loadPegelCatalog() {
+    return fetch(PEGEL_RAW)
+      .then(function (r) {
+        if (!r.ok) throw new Error("pegel.json HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        pegelSections = data.sections || [];
+        refreshPegelRiverSelect();
+      })
+      .catch(function (err) {
+        setStatus("Pegel-Katalog: " + err.message);
+      });
   }
 
   function makeCommunityIcon(type) {
     var label = (type || "P").substring(0, 3);
+    if ((type || "").toLowerCase().indexOf("pegel") >= 0) label = "Pe";
     return L.divIcon({
       className: "",
       html:
@@ -174,12 +281,24 @@
     if (!feature) return;
     bridge.closeOthers();
     var props = feature.properties;
+    var type = POI_TYPES.indexOf(props.type) >= 0 ? props.type : "Einstieg";
     document.getElementById("poiIndex").value = String(index);
     document.getElementById("poiName").value = props.name || "";
-    document.getElementById("poiType").value =
-      POI_TYPES.indexOf(props.type) >= 0 ? props.type : "Einstieg";
-    document.getElementById("poiRiver").value = props.river || "";
+    document.getElementById("poiType").value = type;
+    document.getElementById("poiRiver").value = props.pegel_river || props.river || "";
     document.getElementById("poiDescription").value = props.description || "";
+    togglePoiFieldPanels(type);
+    if (type === "Pegel") {
+      var river = props.pegel_river || props.river || "";
+      var station = props.pegel_station || "";
+      document.getElementById("pegelRiverSelect").value = river;
+      refreshPegelStationSelect();
+      document.getElementById("pegelStationSelect").value = station;
+      document.getElementById("pegelRuleId").value = props.pegel_rule_id || "";
+      document.getElementById("pegelonlineUuid").value = props.pegelonline_uuid || "";
+      document.getElementById("pegelExternalId").value = props.external_station_id || "";
+      applyPegelSelectionToForm();
+    }
     var replaces = props.replaces_osm_id || "";
     document.getElementById("poiReplacesRow").classList.toggle("hidden", !replaces);
     document.getElementById("poiReplacesOsm").value = replaces;
@@ -256,9 +375,32 @@
         var props = poiFeatures[index].properties;
         props.name = document.getElementById("poiName").value.trim();
         props.type = document.getElementById("poiType").value;
-        props.river = document.getElementById("poiRiver").value.trim();
         props.description = document.getElementById("poiDescription").value.trim();
         props.source = "community";
+        if (props.type === "Pegel") {
+          var pRiver = document.getElementById("pegelRiverSelect").value.trim();
+          var pStation = document.getElementById("pegelStationSelect").value.trim();
+          if (!pRiver || !pStation) {
+            setStatus("Pegel-POI: Fluss und Messstelle auswählen.");
+            return;
+          }
+          props.pegel_river = pRiver;
+          props.pegel_station = pStation;
+          props.river = pRiver;
+          props.pegel_rule_id = pegelRuleKey(pRiver, pStation);
+          props.pegelonline_uuid =
+            document.getElementById("pegelonlineUuid").value.trim() || null;
+          props.external_station_id =
+            document.getElementById("pegelExternalId").value.trim() || null;
+          delete props.replaces_osm_id;
+        } else {
+          props.river = document.getElementById("poiRiver").value.trim();
+          delete props.pegel_river;
+          delete props.pegel_station;
+          delete props.pegel_rule_id;
+          delete props.pegelonline_uuid;
+          delete props.external_station_id;
+        }
         redrawPois();
         closePoiSidebar();
         bridge.refreshStatus();
@@ -276,6 +418,12 @@
       });
 
       document.getElementById("btnPoiClose").addEventListener("click", closePoiSidebar);
+
+      document.getElementById("poiType").addEventListener("change", function () {
+        togglePoiFieldPanels(document.getElementById("poiType").value);
+      });
+      document.getElementById("pegelRiverSelect").addEventListener("change", refreshPegelStationSelect);
+      document.getElementById("pegelStationSelect").addEventListener("change", applyPegelSelectionToForm);
 
       document.getElementById("btnPoiAdd").addEventListener("click", function () {
         poiAddMode = !poiAddMode;
@@ -313,7 +461,9 @@
       map.on("moveend", redrawOsmWeirs);
     },
 
-    load: loadCommunity,
+    load: function () {
+      return Promise.all([loadCommunity(), loadPegelCatalog()]);
+    },
 
     closeSidebar: closePoiSidebar,
 
