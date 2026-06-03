@@ -1,5 +1,11 @@
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+html, body {
+  margin: 0; height: 100%; font-family: system-ui, sans-serif;
+  background: #0f172a; color: #e2e8f0;
+}
+body {
+  display: flex; flex-direction: column; overflow: hidden;
+}
 .toolbar {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 12px; padding: 10px 16px; background: #1e293b; border-bottom: 1px solid #334155;
@@ -11,7 +17,9 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
 .basemap-select select {
   padding: 6px 8px; border-radius: 6px; border: 1px solid #475569;
   background: #0f172a; color: #f8fafc;
+  position: relative; z-index: 20;
 }
+.toolbar { position: relative; z-index: 30; }
 .mode-btn.active { outline: 2px solid #38bdf8; }
 .toolbar-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; width: 100%; }
 .toolbar-hint { margin: 0; font-size: 0.8rem; color: #94a3b8; flex: 1 1 100%; }
@@ -26,8 +34,8 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
   width: 14px; height: 14px; border-radius: 50%; background: #64748b;
   border: 2px solid #94a3b8; opacity: 0.85;
 }
-.layout { display: flex; height: calc(100% - 96px); }
-#map { flex: 1; min-height: 300px; }
+.layout { display: flex; flex: 1 1 auto; min-height: 0; }
+#map { flex: 1; min-height: 0; width: 100%; }
 .sidebar {
   width: 320px; max-width: 100%; padding: 16px; background: #1e293b;
   border-left: 1px solid #334155; overflow-y: auto;
@@ -66,7 +74,6 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
 }
 .section-card label { margin-bottom: 8px; }
 .btn-sec-del { margin-top: 4px; width: 100%; }
-.layout { display: flex; height: calc(100% - 96px); }
 #guideSidebar { width: 340px; }
 .sidebar label { display: block; margin-bottom: 12px; font-size: 0.85rem; }
 .sidebar input, .sidebar select, .sidebar textarea {
@@ -82,6 +89,7 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
 .btn.danger { background: #b91c1c; color: white; }
 .btn.active { outline: 2px solid #38bdf8; }
 .status {
+  flex: 0 0 auto;
   padding: 8px 16px; font-size: 0.85rem; background: #0f172a; border-top: 1px solid #334155;
 }
 .toggle { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }

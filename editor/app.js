@@ -19,20 +19,28 @@
   var osmLiveBoundsKey = "";
 
   var BASEMAP_STORAGE_KEY = "flowtrail_editor_basemap";
+  var BASEMAP_LABELS = {
+    carto: "CARTO Voyager",
+    carto_light: "CARTO Positron",
+    carto_dark: "CARTO Dark Matter",
+    osm: "OpenStreetMap",
+    topo: "OpenTopoMap",
+    humanitarian: "Humanitarian HOT"
+  };
   var currentBasemapLayer = null;
   var TILE_LAYERS = {
     carto: {
-      url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+      url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
       attribution: "© OSM © CARTO",
       options: { maxZoom: 20, subdomains: "abcd" }
     },
     carto_light: {
-      url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
       attribution: "© OSM © CARTO",
       options: { maxZoom: 20, subdomains: "abcd" }
     },
     carto_dark: {
-      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
       attribution: "© OSM © CARTO",
       options: { maxZoom: 20, subdomains: "abcd" }
     },
@@ -53,16 +61,52 @@
     }
   };
 
+  var statusBar = document.getElementById("statusBar");
+
+  function setStatus(msg) {
+    if (statusBar) statusBar.textContent = msg;
+  }
+
+  function removeAllTileLayers() {
+    map.eachLayer(function (layer) {
+      if (layer instanceof L.TileLayer) {
+        map.removeLayer(layer);
+      }
+    });
+    currentBasemapLayer = null;
+  }
+
   function switchBasemap(layerId) {
-    var cfg = TILE_LAYERS[layerId] || TILE_LAYERS.carto;
-    if (currentBasemapLayer) map.removeLayer(currentBasemapLayer);
-    currentBasemapLayer = L.tileLayer(cfg.url, Object.assign({ attribution: cfg.attribution }, cfg.options));
+    if (!map) return;
+    var id = TILE_LAYERS[layerId] ? layerId : "carto";
+    var cfg = TILE_LAYERS[id];
+    removeAllTileLayers();
+    var opts = Object.assign({ attribution: cfg.attribution }, cfg.options);
+    currentBasemapLayer = L.tileLayer(cfg.url, opts);
+    currentBasemapLayer.on("tileerror", function () {
+      setStatus("Kartenkacheln konnten nicht geladen werden (" + id + ").");
+    });
     currentBasemapLayer.addTo(map);
+    if (currentBasemapLayer.bringToBack) currentBasemapLayer.bringToBack();
+    var maxZ = opts.maxZoom || 19;
+    if (map.getZoom() > maxZ) map.setZoom(maxZ);
+    map.invalidateSize(true);
     try {
-      sessionStorage.setItem(BASEMAP_STORAGE_KEY, layerId);
+      sessionStorage.setItem(BASEMAP_STORAGE_KEY, id);
     } catch (e) { /* ignore */ }
     var sel = document.getElementById("basemapSelect");
-    if (sel && sel.value !== layerId) sel.value = layerId;
+    if (sel) sel.value = id;
+    var label = BASEMAP_LABELS[id] || id;
+    if (statusBar) setStatus("Hintergrundkarte: " + label);
+  }
+
+  function bindBasemapSelect(initialId) {
+    var sel = document.getElementById("basemapSelect");
+    if (!sel) return;
+    sel.value = initialId;
+    sel.addEventListener("change", function () {
+      switchBasemap(sel.value);
+    });
   }
 
   var map = L.map("map", { zoomControl: false }).setView([51.45, 7.45], 9);
@@ -72,10 +116,8 @@
     initialBasemap = sessionStorage.getItem(BASEMAP_STORAGE_KEY) || "carto";
   } catch (e) { /* ignore */ }
   if (!TILE_LAYERS[initialBasemap]) initialBasemap = "carto";
+  bindBasemapSelect(initialBasemap);
   switchBasemap(initialBasemap);
-  document.getElementById("basemapSelect").onchange = function () {
-    switchBasemap(this.value);
-  };
 
   map.pm.setLang("de");
   map.pm.addControls({
@@ -112,14 +154,9 @@
   var activeDrawMode = null;
   var lastPortageId = null;
 
-  var statusBar = document.getElementById("statusBar");
   var sidebar = document.getElementById("sidebar");
   var guideSidebar = document.getElementById("guideSidebar");
   var featureForm = document.getElementById("featureForm");
-
-  function setStatus(msg) {
-    statusBar.textContent = msg;
-  }
 
   function slugify(text) {
     return String(text || "segment")
