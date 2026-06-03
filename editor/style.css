@@ -82,6 +82,24 @@ html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; backgr
 .toggle { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
 .hidden { display: none !important; }
 
+.trim-panel {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  padding: 10px 16px; background: #172554; border-bottom: 1px solid #334155;
+  font-size: 0.85rem;
+}
+.trim-panel.hidden { display: none !important; }
+.trim-option { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.trim-option em { color: #7dd3fc; font-style: normal; font-weight: 600; }
+.community-layer-selected { filter: drop-shadow(0 0 4px #fbbf24); }
+.trim-preview-keep { color: #22c55e; weight: 6; opacity: 0.95; }
+.trim-preview-remove { color: #ef4444; weight: 4; opacity: 0.75; dashArray: 8 6; }
+.trim-marker {
+  width: 14px; height: 14px; border-radius: 50%; border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.45);
+}
+.trim-marker-a { background: #22c55e; }
+.trim-marker-b { background: #f97316; }
+
 .dialog {
   border: 1px solid #475569;
   border-radius: 12px;

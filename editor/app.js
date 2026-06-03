@@ -39,6 +39,8 @@
   });
 
   var communityLayer = L.layerGroup().addTo(map);
+  var trimPreviewLayer = L.layerGroup().addTo(map);
+  var trimMarkerLayer = L.layerGroup().addTo(map);
   var osmFileLayer = L.layerGroup().addTo(map);
   var osmLiveLayer = L.layerGroup().addTo(map);
 
@@ -49,7 +51,9 @@
   var osmFileLoaded = false;
   var trimMode = false;
   var trimPoints = [];
+  var trimSnapPoints = [];
   var trimTargetIndex = -1;
+  var selectedIndex = -1;
   var upstreamPickMode = false;
   var activeDrawMode = null;
   var lastPortageId = null;
@@ -191,25 +195,34 @@
     return r !== "no_canoe" && r !== "no_paddle" && r !== "closed" && r !== "gesperrt";
   }
 
-  function lineStyle(props) {
+  function lineStyle(props, isSelected) {
     var kind = props.feature_kind || "waterway";
+    var style;
     if (kind === "portage" || kind === "portage_road") {
-      return {
+      style = {
         color: "#eab308",
         weight: kind === "portage_road" ? 4 : 5,
         opacity: 0.95,
         dashArray: "10 8",
         className: "community-portage"
       };
+    } else {
+      var ok = isNavigable(props);
+      style = {
+        color: ok ? "#0284c7" : "#dc2626",
+        weight: ok ? 4 : 5,
+        opacity: 0.9,
+        dashArray: ok ? null : "10 8",
+        className: "community-waterway"
+      };
     }
-    var ok = isNavigable(props);
-    return {
-      color: ok ? "#0284c7" : "#dc2626",
-      weight: ok ? 4 : 5,
-      opacity: 0.9,
-      dashArray: ok ? null : "10 8",
-      className: "community-waterway"
-    };
+    if (isSelected) {
+      style.color = "#fbbf24";
+      style.weight = (style.weight || 4) + 5;
+      style.opacity = 1;
+      style.className = (style.className || "") + " community-layer-selected";
+    }
+    return style;
   }
 
   function pointIcon(kind) {
@@ -344,23 +357,238 @@
     return filtered.length > limit ? filtered.slice(0, limit) : filtered;
   }
 
+  function updateDeleteButton() {
+    document.getElementById("btnDeleteSelected").disabled = selectedIndex < 0;
+  }
+
+  function selectFeature(index, openSidebar) {
+    selectedIndex = index;
+    updateDeleteButton();
+    redrawCommunity();
+    if (openSidebar !== false && index >= 0) {
+      openEditor(index);
+    }
+  }
+
+  function deleteFeatureAt(index) {
+    if (index < 0 || !communityFeatures[index]) return;
+    var props = communityFeatures[index].properties || {};
+    var label = props.name || props.river || featureKind(communityFeatures[index]);
+    if (!confirm("„" + label + "“ wirklich löschen?")) return;
+    communityFeatures.splice(index, 1);
+    cancelTrim();
+    closeSidebar();
+    selectFeature(-1, false);
+    setStatus("Objekt gelöscht.");
+  }
+
+  function clearTrimPreview() {
+    trimPreviewLayer.clearLayers();
+    trimMarkerLayer.clearLayers();
+  }
+
+  function cancelTrim() {
+    trimMode = false;
+    trimPoints = [];
+    trimSnapPoints = [];
+    trimTargetIndex = -1;
+    document.getElementById("btnTrim").classList.remove("active");
+    document.getElementById("trimPanel").classList.add("hidden");
+    document.getElementById("btnTrimApply").disabled = true;
+    clearTrimPreview();
+  }
+
+  function snapToWaterway(index, latlng) {
+    var feature = communityFeatures[index];
+    if (!feature || feature.geometry.type !== "LineString") return null;
+    if (featureKind(feature) !== "waterway") return null;
+    var line = turf.lineString(feature.geometry.coordinates);
+    var snapped = turf.nearestPointOnLine(line, turf.point([latlng.lng, latlng.lat]), {
+      units: "kilometers"
+    });
+    return {
+      latlng: L.latLng(snapped.geometry.coordinates[1], snapped.geometry.coordinates[0]),
+      distance: snapped.properties.location
+    };
+  }
+
+  function drawPreviewLine(coords, style) {
+    if (!coords || coords.length < 2) return;
+    L.polyline(coordsToLatLngs(coords), style).addTo(trimPreviewLayer);
+  }
+
+  function updateTrimPreview() {
+    clearTrimPreview();
+    if (trimTargetIndex < 0 || trimSnapPoints.length < 2) {
+      document.getElementById("btnTrimApply").disabled = true;
+      return;
+    }
+    var feature = communityFeatures[trimTargetIndex];
+    if (!feature) return;
+    var line = turf.lineString(feature.geometry.coordinates);
+    var dMin = Math.min(trimSnapPoints[0].distance, trimSnapPoints[1].distance);
+    var dMax = Math.max(trimSnapPoints[0].distance, trimSnapPoints[1].distance);
+    var op = document.querySelector('input[name="trimOp"]:checked').value;
+    var startPt = turf.along(line, dMin, { units: "kilometers" });
+    var endPt = turf.along(line, dMax, { units: "kilometers" });
+    var middle = turf.lineSlice(startPt, endPt, line).geometry.coordinates;
+    var partA = turf.lineSlice(
+      turf.point(line.geometry.coordinates[0]),
+      startPt,
+      line
+    ).geometry.coordinates;
+    var partB = turf.lineSlice(
+      endPt,
+      turf.point(line.geometry.coordinates[line.geometry.coordinates.length - 1]),
+      line
+    ).geometry.coordinates;
+
+    trimSnapPoints.forEach(function (sp, i) {
+      L.marker(sp.latlng, {
+        icon: L.divIcon({
+          className: "",
+          html:
+            '<div class="trim-marker ' + (i === 0 ? "trim-marker-a" : "trim-marker-b") + '"></div>',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        }),
+        interactive: false
+      }).addTo(trimMarkerLayer);
+    });
+
+    if (op === "keep") {
+      drawPreviewLine(partA, { color: "#ef4444", weight: 5, dashArray: "8 6", opacity: 0.85 });
+      drawPreviewLine(partB, { color: "#ef4444", weight: 5, dashArray: "8 6", opacity: 0.85 });
+      drawPreviewLine(middle, { color: "#22c55e", weight: 7, opacity: 0.95 });
+      document.getElementById("btnTrimApply").disabled = middle.length < 2;
+    } else {
+      drawPreviewLine(middle, { color: "#ef4444", weight: 6, dashArray: "8 6", opacity: 0.9 });
+      drawPreviewLine(partA, { color: "#22c55e", weight: 6, opacity: 0.95 });
+      drawPreviewLine(partB, { color: "#22c55e", weight: 6, opacity: 0.95 });
+      document.getElementById("btnTrimApply").disabled = partA.length < 2 && partB.length < 2;
+    }
+  }
+
+  function applyTrim() {
+    if (trimTargetIndex < 0 || trimSnapPoints.length < 2) return;
+    var feature = communityFeatures[trimTargetIndex];
+    var line = turf.lineString(feature.geometry.coordinates);
+    var dMin = Math.min(trimSnapPoints[0].distance, trimSnapPoints[1].distance);
+    var dMax = Math.max(trimSnapPoints[0].distance, trimSnapPoints[1].distance);
+    var op = document.querySelector('input[name="trimOp"]:checked').value;
+    try {
+      var startPt = turf.along(line, dMin, { units: "kilometers" });
+      var endPt = turf.along(line, dMax, { units: "kilometers" });
+      if (op === "keep") {
+        var kept = turf.lineSlice(startPt, endPt, line);
+        if (kept.geometry.coordinates.length < 2) {
+          throw new Error("Auswahl zu kurz — Punkte weiter auseinander wählen.");
+        }
+        feature.geometry.coordinates = kept.geometry.coordinates;
+      } else {
+        var partA = turf.lineSlice(turf.point(line.geometry.coordinates[0]), startPt, line);
+        var partB = turf.lineSlice(
+          endPt,
+          turf.point(line.geometry.coordinates[line.geometry.coordinates.length - 1]),
+          line
+        );
+        var coordsA = partA.geometry.coordinates;
+        var coordsB = partB.geometry.coordinates;
+        if (coordsA.length < 2 && coordsB.length < 2) {
+          throw new Error("Es würde nichts übrig bleiben.");
+        }
+        if (coordsA.length >= 2) {
+          feature.geometry.coordinates = coordsA;
+          if (coordsB.length >= 2) {
+            var tail = JSON.parse(JSON.stringify(feature));
+            tail.properties = JSON.parse(JSON.stringify(feature.properties));
+            tail.properties.id = newFeatureId(feature.properties.river || "teil");
+            tail.geometry.coordinates = coordsB;
+            communityFeatures.push(tail);
+          }
+        } else {
+          feature.geometry.coordinates = coordsB;
+        }
+      }
+      var idx = trimTargetIndex;
+      cancelTrim();
+      selectFeature(idx, true);
+      setStatus("Stutzen angewendet — grüner Bereich ist das Ergebnis.");
+    } catch (err) {
+      setStatus("Stutzen: " + err.message);
+    }
+  }
+
+  function handleTrimClick(index, latlng) {
+    if (index < 0 || featureKind(communityFeatures[index]) !== "waterway") return;
+    var snap = snapToWaterway(index, latlng);
+    if (!snap) return;
+    if (trimSnapPoints.length >= 2) {
+      trimSnapPoints = [snap];
+      trimPoints = [snap.latlng];
+      document.getElementById("trimHint").textContent =
+        "Neuer Punkt 1 — jetzt Punkt 2 auf derselben Linie.";
+    } else {
+      trimSnapPoints.push(snap);
+      trimPoints.push(snap.latlng);
+    }
+    if (trimSnapPoints.length < 2) {
+      document.getElementById("trimHint").textContent =
+        "Punkt 1 gesetzt — Punkt 2 auf derselben Flusslinie wählen.";
+      clearTrimPreview();
+      L.marker(snap.latlng, {
+        icon: L.divIcon({
+          className: "",
+          html: '<div class="trim-marker trim-marker-a"></div>',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        }),
+        interactive: false
+      }).addTo(trimMarkerLayer);
+      return;
+    }
+    document.getElementById("trimHint").textContent =
+      "Vorschau: Grün = bleibt, Rot = wird entfernt. Dann „Anwenden“.";
+    updateTrimPreview();
+  }
+
   function redrawCommunity() {
     communityLayer.clearLayers();
     communityFeatures.forEach(function (feature, index) {
       var kind = featureKind(feature);
       var props = feature.properties || {};
+      var isSelected = index === selectedIndex;
       var clickFn = function (e) {
-        if (trimMode && kind === "waterway") {
+        if (trimMode) {
+          if (feature.geometry.type !== "LineString" || kind !== "waterway") {
+            setStatus("Stutzen: zuerst eine blaue Flusslinie wählen.");
+            L.DomEvent.stopPropagation(e);
+            return;
+          }
+          if (trimTargetIndex < 0) {
+            trimTargetIndex = index;
+            selectFeature(index, false);
+            document.getElementById("trimHint").textContent =
+              "„" + (props.name || props.river || "Fluss") +
+              "“ gewählt — Punkt 1 auf der Linie klicken.";
+            L.DomEvent.stopPropagation(e);
+            return;
+          }
+          if (trimTargetIndex !== index) {
+            setStatus("Stutzen nur auf der gewählten Linie — „Abbrechen“ für andere Linie.");
+            L.DomEvent.stopPropagation(e);
+            return;
+          }
           handleTrimClick(index, e.latlng);
           L.DomEvent.stopPropagation(e);
           return;
         }
         L.DomEvent.stopPropagation(e);
-        openEditor(index);
+        selectFeature(index, true);
       };
 
       if (feature.geometry.type === "Point") {
-        L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
+        var m = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {
           icon: pointIcon(kind),
           draggable: true
         })
@@ -370,12 +598,24 @@
             feature.geometry.coordinates = [ll.lng, ll.lat];
           })
           .addTo(communityLayer);
+        if (isSelected) {
+          m.setZIndexOffset(1000);
+        }
         return;
       }
 
-      var layer = featureToLayer(feature, lineStyle(props));
+      var pts = linePoints(feature);
+      if (pts.length >= 2) {
+        L.polyline(pts, { color: "#000", weight: 18, opacity: 0, interactive: true })
+          .on("click", clickFn)
+          .addTo(communityLayer);
+      }
+      var layer = featureToLayer(feature, lineStyle(props, isSelected));
       if (!layer) return;
       layer.on("click", clickFn);
+      if (isSelected && layer.bringToFront) {
+        layer.bringToFront();
+      }
       layer.addTo(communityLayer);
       addDirectionDecorations(feature, communityLayer);
     });
@@ -452,9 +692,8 @@
     document.getElementById("toolbarPois").classList.toggle("hidden", mode !== "pois");
     if (mode === "pois") {
       clearDrawMode();
-      trimMode = false;
+      cancelTrim();
       upstreamPickMode = false;
-      document.getElementById("btnTrim").classList.remove("active");
     }
     if (window.FlowTrailPoi) FlowTrailPoi.onModeChange(mode);
     closeAllSidebars();
@@ -515,9 +754,12 @@
   function openEditor(index) {
     var feature = communityFeatures[index];
     if (!feature) return;
+    selectedIndex = index;
+    updateDeleteButton();
     var kind = featureKind(feature);
     var props = feature.properties || {};
     guideSidebar.classList.add("hidden");
+    if (window.FlowTrailPoi) FlowTrailPoi.closeSidebar();
     sidebar.classList.remove("hidden");
     document.getElementById("featureIndex").value = String(index);
     document.getElementById("featId").value = props.id || "";
@@ -583,36 +825,6 @@
     redrawOsmFile();
     redrawOsmLive();
     openEditor(communityFeatures.length - 1);
-  }
-
-  function handleTrimClick(index, latlng) {
-    if (index < 0 || featureKind(communityFeatures[index]) !== "waterway") return;
-    trimTargetIndex = index;
-    trimPoints.push(latlng);
-    if (trimPoints.length < 2) {
-      setStatus("Stutzen: zweiten Punkt wählen …");
-      return;
-    }
-    var feature = communityFeatures[index];
-    try {
-      var line = turf.lineString(feature.geometry.coordinates);
-      var start = turf.point([trimPoints[0].lng, trimPoints[0].lat]);
-      var end = turf.point([trimPoints[1].lng, trimPoints[1].lat]);
-      var sliced = turf.lineSlice(start, end, line);
-      var fullLen = turf.length(line, { units: "kilometers" });
-      var sliceLen = turf.length(sliced, { units: "kilometers" });
-      feature.geometry.coordinates = (sliceLen <= fullLen / 2 ? sliced : turf.lineSlice(end, start, line))
-        .geometry.coordinates;
-      trimPoints = [];
-      trimMode = false;
-      document.getElementById("btnTrim").classList.remove("active");
-      redrawCommunity();
-      openEditor(index);
-      setStatus("Fluss gestutzt.");
-    } catch (err) {
-      trimPoints = [];
-      setStatus("Stutzen fehlgeschlagen: " + err.message);
-    }
   }
 
   function listRiversFromFeatures() {
@@ -765,10 +977,11 @@
 
   document.getElementById("btnDelete").onclick = function () {
     var index = parseInt(document.getElementById("featureIndex").value, 10);
-    if (index < 0 || !confirm("Wirklich löschen?")) return;
-    communityFeatures.splice(index, 1);
-    redrawCommunity();
-    closeSidebar();
+    deleteFeatureAt(index);
+  };
+
+  document.getElementById("btnDeleteSelected").onclick = function () {
+    deleteFeatureAt(selectedIndex);
   };
 
   document.getElementById("btnClose").onclick = closeSidebar;
@@ -794,11 +1007,58 @@
   });
 
   document.getElementById("btnTrim").onclick = function () {
-    trimMode = !trimMode;
+    if (trimMode) {
+      cancelTrim();
+      setStatus("Stutzen abgebrochen.");
+      return;
+    }
+    trimMode = true;
+    trimTargetIndex = selectedIndex >= 0 && featureKind(communityFeatures[selectedIndex]) === "waterway"
+      ? selectedIndex
+      : -1;
+    trimSnapPoints = [];
+    trimPoints = [];
     clearDrawMode();
-    document.getElementById("btnTrim").classList.toggle("active", trimMode);
-    setStatus(trimMode ? "Stutzen: Fluss wählen, 2 Punkte." : "Stutzen aus.");
+    closeAllSidebars();
+    document.getElementById("btnTrim").classList.add("active");
+    document.getElementById("trimPanel").classList.remove("hidden");
+    document.getElementById("btnTrimApply").disabled = true;
+    clearTrimPreview();
+    if (trimTargetIndex >= 0) {
+      var p = communityFeatures[trimTargetIndex].properties || {};
+      document.getElementById("trimHint").textContent =
+        "„" + (p.name || p.river || "Fluss") + "“ gewählt — Punkt 1 auf der Linie klicken.";
+    } else {
+      document.getElementById("trimHint").textContent =
+        "Flusslinie anklicken, dann 2 Punkte auf der Linie setzen.";
+    }
+    setStatus("Stutzen: Grün = bleibt, Rot = weg — erst Vorschau, dann Anwenden.");
   };
+
+  document.getElementById("btnTrimApply").onclick = applyTrim;
+  document.getElementById("btnTrimCancel").onclick = function () {
+    cancelTrim();
+    setStatus("Stutzen abgebrochen.");
+  };
+  document.querySelectorAll('input[name="trimOp"]').forEach(function (radio) {
+    radio.addEventListener("change", updateTrimPreview);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "Escape") {
+      if (trimMode) {
+        cancelTrim();
+        setStatus("Stutzen abgebrochen.");
+      } else if (selectedIndex >= 0) {
+        selectFeature(-1, false);
+        closeSidebar();
+      }
+    }
+    if (e.key === "Delete" && selectedIndex >= 0) {
+      deleteFeatureAt(selectedIndex);
+    }
+  });
 
   document.getElementById("btnPanelGuide").onclick = openGuidePanel;
   document.getElementById("guideRiverSelect").onchange = loadGuideIntoForm;

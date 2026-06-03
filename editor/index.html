@@ -27,6 +27,7 @@
       <button type="button" class="btn secondary tool-btn" data-draw="einstieg" title="Umtrag-Einstieg am Gewässer">Umtrag E</button>
       <button type="button" class="btn secondary tool-btn" data-draw="ausstieg" title="Umtrag-Ausstieg am Gewässer">Umtrag A</button>
       <button type="button" class="btn secondary" id="btnTrim">Stutzen</button>
+      <button type="button" class="btn danger" id="btnDeleteSelected" disabled title="Ausgewähltes Objekt löschen (Entf)">Löschen</button>
       <button type="button" class="btn secondary" id="btnPanelGuide">Flussführer</button>
       <button type="button" class="btn secondary" id="btnExport">Download</button>
       <button type="button" class="btn primary" id="btnSaveRepo">In Repos speichern</button>
@@ -104,7 +105,7 @@
         <label>Feature-ID <input type="text" id="featId" /></label>
         <div class="form-actions">
           <button type="submit" class="btn primary">Speichern</button>
-          <button type="button" class="btn danger" id="btnDelete">Löschen</button>
+          <button type="button" class="btn danger" id="btnDelete" title="Ausgewähltes Objekt löschen">Löschen</button>
           <button type="button" class="btn secondary" id="btnClose">Schließen</button>
         </div>
       </form>
@@ -156,6 +157,15 @@
         <button type="button" class="btn secondary" id="btnGuideClose">Schließen</button>
       </div>
     </aside>
+  </div>
+
+  <div id="trimPanel" class="trim-panel hidden">
+    <strong>Stutzen:</strong>
+    <span id="trimHint">Flusslinie anklicken, dann 2 Punkte auf der Linie.</span>
+    <label class="trim-option"><input type="radio" name="trimOp" value="keep" checked /> Zwischen den Punkten <em>behalten</em> (Enden abschneiden)</label>
+    <label class="trim-option"><input type="radio" name="trimOp" value="remove" /> Zwischen den Punkten <em>entfernen</em> (Linie teilen)</label>
+    <button type="button" class="btn primary" id="btnTrimApply" disabled>Anwenden</button>
+    <button type="button" class="btn secondary" id="btnTrimCancel">Abbrechen</button>
   </div>
 
   <footer class="status" id="statusBar">Lade Daten aus GitHub …</footer>
