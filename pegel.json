@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-24T06:25:49.258940+00:00",
+  "updated_at": "2026-06-24T17:36:42.107643+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -20,7 +20,7 @@
     {
       "river": "Alme",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Weine"
       ]
@@ -28,7 +28,7 @@
     {
       "river": "Bröl",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Broeleck"
       ]
@@ -36,7 +36,7 @@
     {
       "river": "Dhünn",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Manfort"
       ]
@@ -100,7 +100,7 @@
     {
       "river": "Lenne",
       "station_count": 2,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Altena",
         "Kickenbach"
@@ -125,7 +125,7 @@
     {
       "river": "Nethe",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Ottbergen"
       ]
@@ -150,7 +150,7 @@
     {
       "river": "Ruhr",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Meschede"
       ]
@@ -167,7 +167,7 @@
     {
       "river": "Sieg",
       "station_count": 2,
-      "best_status": "unknown",
+      "best_status": "high",
       "stations": [
         "Betzdorf",
         "Eitorf"
@@ -176,7 +176,7 @@
     {
       "river": "Sülz",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Hoffnungsthal"
       ]
@@ -192,7 +192,7 @@
     {
       "river": "Volme",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "too_low",
       "stations": [
         "Stephansohl"
       ]
@@ -216,7 +216,7 @@
     {
       "river": "Wupper",
       "station_count": 1,
-      "best_status": "unknown",
+      "best_status": "high",
       "stations": [
         "Opladen"
       ]
@@ -266,62 +266,62 @@
     {
       "river": "Alme",
       "station": "Weine",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 40.9,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
       "max": 137.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28761/Weine/Wasserstand?period=P1D\r\n",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2782370000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28761/Weine/Wasserstand",
+      "external_station_id": "2782370000100"
     },
     {
       "river": "Bröl",
       "station": "Broeleck",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 20.6,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28323/Broeleck/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2726599000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28323/Broeleck/Wasserstand",
+      "external_station_id": "2726599000100"
     },
     {
       "river": "Dhünn",
       "station": "Manfort",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 23.9,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
       "max": 137.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28549/Manfort/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2736879000200",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28549/Manfort/Wasserstand",
+      "external_station_id": "2736879000200"
     },
     {
       "river": "Diemel",
@@ -337,10 +337,10 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-HE",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "HE_44950055",
+      "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43404/Helmarshausen?period=P7D",
       "external_station_id": null
     },
     {
@@ -357,10 +357,10 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-HE",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "HE_25842500",
+      "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42482/Aßlar?period=P7D",
       "external_station_id": null
     },
     {
@@ -377,10 +377,10 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-HE",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "HE_42810204",
+      "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43094/Auhammer?period=P7D",
       "external_station_id": null
     },
     {
@@ -457,51 +457,51 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-HE",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "HE_25810558",
+      "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42156/Biedenkopf?period=P7D",
       "external_station_id": null
     },
     {
       "river": "Lenne",
       "station": "Altena",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 35.4,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
       "max": 112.5,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28254/Altena/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2766930000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28254/Altena/Wasserstand",
+      "external_station_id": "2766930000100"
     },
     {
       "river": "Lenne",
       "station": "Kickenbach",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 76.0,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
       "max": 275.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28494/Kickenbach/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2766199000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28494/Kickenbach/Wasserstand",
+      "external_station_id": "2766199000100"
     },
     {
       "river": "Möhne",
@@ -537,31 +537,31 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-HE",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "HE_24740606",
+      "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/41478/Michelstadt?period=P7D",
       "external_station_id": null
     },
     {
       "river": "Nethe",
       "station": "Ottbergen",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 111.6,
       "min": 115.0,
       "ideal_min": 115.0,
       "ideal_max": 184.0,
       "max": 287.5,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28637/Ottbergen/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_4529500000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28637/Ottbergen/Wasserstand",
+      "external_station_id": "4529500000100"
     },
     {
       "river": "Nidda",
@@ -597,10 +597,10 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-RP",
+      "flood_class": "Kein Hochwasser bzw. &#60; 2-jährliches Hochwasser",
+      "lhp_id": "RP_26280300",
+      "station_link": "https://www.hochwasser.rlp.de/flussgebiet/mosel/echtershausen",
       "external_station_id": null
     },
     {
@@ -617,31 +617,31 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-RP",
+      "flood_class": "Kein Hochwasser bzw. &#60; 2-jährliches Hochwasser",
+      "lhp_id": "RP_26280504",
+      "station_link": "https://www.hochwasser.rlp.de/flussgebiet/mosel/pruemzurlay",
       "external_station_id": null
     },
     {
       "river": "Ruhr",
       "station": "Meschede",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 38.8,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
       "max": 200.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28569/Meschede/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2761510000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28569/Meschede/Wasserstand",
+      "external_station_id": "2761510000100"
     },
     {
       "river": "Rur",
@@ -697,51 +697,51 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-RP",
+      "flood_class": "Kein Hochwasser bzw. &#60; 2-jährliches Hochwasser",
+      "lhp_id": "RP_27200500",
+      "station_link": "https://www.hochwasser.rlp.de/flussgebiet/sieg/betzdorf",
       "external_station_id": null
     },
     {
       "river": "Sieg",
       "station": "Eitorf",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 34.3,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
       "max": 90.0,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28357/Eitorf/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2725910000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28357/Eitorf/Wasserstand",
+      "external_station_id": "2725910000100"
     },
     {
       "river": "Sülz",
       "station": "Hoffnungsthal",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 41.3,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
       "max": 150.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28464/Hoffnungsthal/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2728893000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28464/Hoffnungsthal/Wasserstand",
+      "external_station_id": "2728893000100"
     },
     {
       "river": "Vicht",
@@ -766,22 +766,22 @@
     {
       "river": "Volme",
       "station": "Stephansohl",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 8.6,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
       "max": 125.0,
       "hint": "NRW: nicht befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28727/Stephansohl/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2768579000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28727/Stephansohl/Wasserstand",
+      "external_station_id": "2768579000100"
     },
     {
       "river": "Wenne",
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 523.0,
+      "current": 519.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -817,31 +817,31 @@
       "source": "pegelonline",
       "pegelonline_uuid": "314945d6-b499-40cf-bb21-d76cf4547e3a",
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-RP",
+      "flood_class": "Kein Hochwasser bzw. &#60; 2-jährliches Hochwasser",
+      "lhp_id": "RP_27160406",
+      "station_link": "https://www.hochwasser.rlp.de/flussgebiet/wied/friedrichsthal",
       "external_station_id": "314945d6-b499-40cf-bb21-d76cf4547e3a"
     },
     {
       "river": "Wupper",
       "station": "Opladen",
-      "status": "unknown",
-      "label": "❓ Unbekannt",
-      "current": null,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 41.5,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
       "max": 98.0,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/211257056/Opladen/Wasserstand?period=P1D",
-      "source": "unknown",
+      "source": "openhygon",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
-      "external_station_id": null
+      "state": "DE-NW",
+      "flood_class": "Kein Hochwasser",
+      "lhp_id": "NW_2736790000200",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/211257056/Opladen/Wasserstand",
+      "external_station_id": "2736790000200"
     }
   ]
 }
