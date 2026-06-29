@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-28T17:26:37.747495+00:00",
+  "updated_at": "2026-06-29T06:36:30.835551+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -216,7 +216,7 @@
     {
       "river": "Wupper",
       "station_count": 1,
-      "best_status": "good",
+      "best_status": "high",
       "stations": [
         "Opladen"
       ]
@@ -268,7 +268,7 @@
       "station": "Weine",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 39.7,
+      "current": 39.1,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -278,7 +278,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2782370000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28761/Weine/Wasserstand",
       "external_station_id": "2782370000100"
@@ -288,7 +288,7 @@
       "station": "Broeleck",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 17.6,
+      "current": 16.4,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -298,7 +298,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2726599000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28323/Broeleck/Wasserstand",
       "external_station_id": "2726599000100"
@@ -308,7 +308,7 @@
       "station": "Manfort",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 24.2,
+      "current": 23.9,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -318,7 +318,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2736879000200",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28549/Manfort/Wasserstand",
       "external_station_id": "2736879000200"
@@ -468,7 +468,7 @@
       "station": "Altena",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 34.8,
+      "current": 34.3,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
@@ -478,7 +478,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2766930000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28254/Altena/Wasserstand",
       "external_station_id": "2766930000100"
@@ -488,7 +488,7 @@
       "station": "Kickenbach",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 66.9,
+      "current": 72.6,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
@@ -498,7 +498,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2766199000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28494/Kickenbach/Wasserstand",
       "external_station_id": "2766199000100"
@@ -558,7 +558,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_4529500000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28637/Ottbergen/Wasserstand",
       "external_station_id": "4529500000100"
@@ -628,7 +628,7 @@
       "station": "Meschede",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 44.6,
+      "current": 42.4,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
@@ -638,7 +638,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2761510000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28569/Meschede/Wasserstand",
       "external_station_id": "2761510000100"
@@ -708,7 +708,7 @@
       "station": "Eitorf",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 28.1,
+      "current": 25.7,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
@@ -718,7 +718,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2725910000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28357/Eitorf/Wasserstand",
       "external_station_id": "2725910000100"
@@ -728,7 +728,7 @@
       "station": "Hoffnungsthal",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 39.2,
+      "current": 38.2,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
@@ -738,7 +738,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2728893000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28464/Hoffnungsthal/Wasserstand",
       "external_station_id": "2728893000100"
@@ -768,7 +768,7 @@
       "station": "Stephansohl",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 7.3,
+      "current": 6.6,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -778,7 +778,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2768579000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28727/Stephansohl/Wasserstand",
       "external_station_id": "2768579000100"
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 529.0,
+      "current": 520.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -826,9 +826,9 @@
     {
       "river": "Wupper",
       "station": "Opladen",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
-      "current": 40.1,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 43.8,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
@@ -838,7 +838,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2736790000200",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/211257056/Opladen/Wasserstand",
       "external_station_id": "2736790000200"
