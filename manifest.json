@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-26T05",
-  "updatedAt": "2026-08-26T05:36:48.200069+00:00",
+  "version": "2026-08-26T18",
+  "updatedAt": "2026-08-26T18:51:33.036486+00:00",
   "label": "NRW Befahrbarkeit (rules.json + LHP + OpenHygon + PEGELONLINE)",
   "dataUrl": "https://raw.githubusercontent.com/3ddruck12/flowtrail-pegel/main/pegel.json"
 }
