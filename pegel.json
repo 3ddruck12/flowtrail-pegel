@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-05T08:52:23.272949+00:00",
+  "updated_at": "2026-09-05T18:42:37.735589+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -318,7 +318,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2736879000200",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28549/Manfort/Wasserstand",
       "external_station_id": "2736879000200"
