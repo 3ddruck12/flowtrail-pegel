@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-10T09:26:21.549325+00:00",
+  "updated_at": "2026-09-10T19:23:52.253897+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 531.0,
+      "current": 541.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
