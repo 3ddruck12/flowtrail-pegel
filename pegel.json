@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-20T09:38:52.910772+00:00",
+  "updated_at": "2026-09-20T19:12:25.149771+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -338,7 +338,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
       "state": "DE-HE",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Derzeit keine Daten",
       "lhp_id": "HE_44950055",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43404/Helmarshausen?period=P7D",
       "external_station_id": null
@@ -358,7 +358,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-HE",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Derzeit keine Daten",
       "lhp_id": "HE_25842500",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42482/Aßlar?period=P7D",
       "external_station_id": null
@@ -378,7 +378,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-HE",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Derzeit keine Daten",
       "lhp_id": "HE_42810204",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/43094/Auhammer?period=P7D",
       "external_station_id": null
@@ -458,7 +458,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-HE",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Derzeit keine Daten",
       "lhp_id": "HE_25810558",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42156/Biedenkopf?period=P7D",
       "external_station_id": null
@@ -538,7 +538,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-HE",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Derzeit keine Daten",
       "lhp_id": "HE_24740606",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/41478/Michelstadt?period=P7D",
       "external_station_id": null
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 508.0,
+      "current": 535.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
