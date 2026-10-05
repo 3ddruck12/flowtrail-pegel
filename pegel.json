@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-05T12:07:15.340969+00:00",
+  "updated_at": "2026-10-05T23:01:24.301895+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -677,10 +677,10 @@
       "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": null,
-      "flood_class": null,
-      "lhp_id": null,
-      "station_link": null,
+      "state": "DE-NW",
+      "flood_class": "Derzeit keine Daten",
+      "lhp_id": "NW_2825330000100",
+      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28538/Linnich/Wasserstand",
       "external_station_id": null
     },
     {
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 514.0,
+      "current": 507.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
