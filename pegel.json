@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-06T11:51:20.477556+00:00",
+  "updated_at": "2026-10-06T21:24:27.295920+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -158,7 +158,7 @@
     {
       "river": "Rur",
       "station_count": 2,
-      "best_status": "good",
+      "best_status": "unknown",
       "stations": [
         "Dedenborn",
         "Linnich"
@@ -666,22 +666,22 @@
     {
       "river": "Rur",
       "station": "Linnich",
-      "status": "good",
-      "label": "✅ Gut fahrbar",
-      "current": 85.08,
+      "status": "unknown",
+      "label": "❓ Unbekannt",
+      "current": null,
       "min": 85.0,
       "ideal_min": 85.0,
       "ideal_max": 136.0,
       "max": 212.5,
       "hint": "NRW: befahrbar | Link: https://hochwasserportal.nrw/lanuv/webpublic/index.html#/overview/Wasserstand/station/28538/Linnich/Wasserstand?period=P1D",
-      "source": "openhygon",
+      "source": "unknown",
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
-      "state": "DE-NW",
-      "flood_class": "Derzeit keine Daten",
-      "lhp_id": "NW_2825330000100",
-      "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28538/Linnich/Wasserstand",
-      "external_station_id": "2825330000100"
+      "state": null,
+      "flood_class": null,
+      "lhp_id": null,
+      "station_link": null,
+      "external_station_id": null
     },
     {
       "river": "Sieg",
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 502.0,
+      "current": 514.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
