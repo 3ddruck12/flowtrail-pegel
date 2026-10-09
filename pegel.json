@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-09T11:42:53.297411+00:00",
+  "updated_at": "2026-10-09T21:24:49.091481+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -358,7 +358,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-HE",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Derzeit keine Daten",
       "lhp_id": "HE_25842500",
       "station_link": "https://www.hlnug.de/static/pegel/wiskiweb3/webpublic/#/overview/Wasserstand/station/42482/Aßlar?period=P7D",
       "external_station_id": null
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 524.0,
+      "current": 508.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
