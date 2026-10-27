@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-26T21:16:30.945536+00:00",
+  "updated_at": "2026-10-27T10:16:03.522824+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -36,7 +36,7 @@
     {
       "river": "Dhünn",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "too_low",
       "stations": [
         "Manfort"
       ]
@@ -176,7 +176,7 @@
     {
       "river": "Sülz",
       "station_count": 1,
-      "best_status": "danger",
+      "best_status": "high",
       "stations": [
         "Hoffnungsthal"
       ]
@@ -192,7 +192,7 @@
     {
       "river": "Volme",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "too_low",
       "stations": [
         "Stephansohl"
       ]
@@ -268,7 +268,7 @@
       "station": "Weine",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 43.9,
+      "current": 35.8,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -288,7 +288,7 @@
       "station": "Broeleck",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 49.7,
+      "current": 31.7,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -306,9 +306,9 @@
     {
       "river": "Dhünn",
       "station": "Manfort",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 62.9,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 39.2,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -468,7 +468,7 @@
       "station": "Altena",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 105.1,
+      "current": 73.3,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
@@ -486,9 +486,9 @@
     {
       "river": "Lenne",
       "station": "Kickenbach",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 110.7,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 99.0,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
@@ -548,7 +548,7 @@
       "station": "Ottbergen",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 138.6,
+      "current": 116.1,
       "min": 115.0,
       "ideal_min": 115.0,
       "ideal_max": 184.0,
@@ -628,7 +628,7 @@
       "station": "Meschede",
       "status": "too_low",
       "label": "❌ Zu wenig Wasser",
-      "current": 54.6,
+      "current": 41.7,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
@@ -708,7 +708,7 @@
       "station": "Eitorf",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 118.0,
+      "current": 70.8,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
@@ -726,9 +726,9 @@
     {
       "river": "Sülz",
       "station": "Hoffnungsthal",
-      "status": "danger",
-      "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 102.7,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 71.4,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
@@ -766,9 +766,9 @@
     {
       "river": "Volme",
       "station": "Stephansohl",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
-      "current": 60.2,
+      "status": "too_low",
+      "label": "❌ Zu wenig Wasser",
+      "current": 36.4,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 476.0,
+      "current": 484.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -828,7 +828,7 @@
       "station": "Opladen",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 120.3,
+      "current": 82.2,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
