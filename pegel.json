@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-18T23:13:36.555884+00:00",
+  "updated_at": "2026-11-19T14:11:34.970071+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -20,7 +20,7 @@
     {
       "river": "Alme",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "high",
       "stations": [
         "Weine"
       ]
@@ -28,7 +28,7 @@
     {
       "river": "Bröl",
       "station_count": 1,
-      "best_status": "danger",
+      "best_status": "high",
       "stations": [
         "Broeleck"
       ]
@@ -36,7 +36,7 @@
     {
       "river": "Dhünn",
       "station_count": 1,
-      "best_status": "danger",
+      "best_status": "high",
       "stations": [
         "Manfort"
       ]
@@ -150,7 +150,7 @@
     {
       "river": "Ruhr",
       "station_count": 1,
-      "best_status": "too_low",
+      "best_status": "high",
       "stations": [
         "Meschede"
       ]
@@ -192,7 +192,7 @@
     {
       "river": "Volme",
       "station_count": 1,
-      "best_status": "danger",
+      "best_status": "high",
       "stations": [
         "Stephansohl"
       ]
@@ -266,9 +266,9 @@
     {
       "river": "Alme",
       "station": "Weine",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 51.6,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 65.3,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -286,9 +286,9 @@
     {
       "river": "Bröl",
       "station": "Broeleck",
-      "status": "danger",
-      "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 84.3,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 56.5,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -306,9 +306,9 @@
     {
       "river": "Dhünn",
       "station": "Manfort",
-      "status": "danger",
-      "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 89.5,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 65.3,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -468,7 +468,7 @@
       "station": "Altena",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 119.0,
+      "current": 134.4,
       "min": 45.0,
       "ideal_min": 45.0,
       "ideal_max": 72.0,
@@ -488,7 +488,7 @@
       "station": "Kickenbach",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 135.8,
+      "current": 140.2,
       "min": 110.0,
       "ideal_min": 110.0,
       "ideal_max": 176.0,
@@ -548,7 +548,7 @@
       "station": "Ottbergen",
       "status": "high",
       "label": "⚠️ Hoher Pegel",
-      "current": 160.8,
+      "current": 167.6,
       "min": 115.0,
       "ideal_min": 115.0,
       "ideal_max": 184.0,
@@ -626,9 +626,9 @@
     {
       "river": "Ruhr",
       "station": "Meschede",
-      "status": "too_low",
-      "label": "❌ Zu wenig Wasser",
-      "current": 64.9,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 95.9,
       "min": 80.0,
       "ideal_min": 80.0,
       "ideal_max": 128.0,
@@ -708,7 +708,7 @@
       "station": "Eitorf",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 136.7,
+      "current": 168.9,
       "min": 30.0,
       "ideal_min": 30.0,
       "ideal_max": 55.0,
@@ -728,7 +728,7 @@
       "station": "Hoffnungsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 148.1,
+      "current": 113.6,
       "min": 60.0,
       "ideal_min": 60.0,
       "ideal_max": 96.0,
@@ -766,9 +766,9 @@
     {
       "river": "Volme",
       "station": "Stephansohl",
-      "status": "danger",
-      "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 96.0,
+      "status": "high",
+      "label": "⚠️ Hoher Pegel",
+      "current": 79.7,
       "min": 50.0,
       "ideal_min": 50.0,
       "ideal_max": 80.0,
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 542.0,
+      "current": 551.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
@@ -828,7 +828,7 @@
       "station": "Opladen",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 166.4,
+      "current": 125.5,
       "min": 38.0,
       "ideal_min": 38.0,
       "ideal_max": 63.0,
