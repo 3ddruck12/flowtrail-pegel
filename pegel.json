@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-20T13:53:07.234579+00:00",
+  "updated_at": "2026-11-20T22:53:31.831838+00:00",
   "rivers": [
     {
       "river": "Agger",
@@ -28,7 +28,7 @@
     {
       "river": "Bröl",
       "station_count": 1,
-      "best_status": "high",
+      "best_status": "danger",
       "stations": [
         "Broeleck"
       ]
@@ -286,8 +286,8 @@
     {
       "river": "Bröl",
       "station": "Broeleck",
-      "status": "high",
-      "label": "⚠️ Hoher Pegel",
+      "status": "danger",
+      "label": "⛔ Gefährlich (Hochwasser)",
       "current": 104.7,
       "min": 50.0,
       "ideal_min": 50.0,
@@ -298,7 +298,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "nicht befahrbar",
       "state": "DE-NW",
-      "flood_class": "Informationswert 1",
+      "flood_class": "Kein Hochwasser",
       "lhp_id": "NW_2726599000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28323/Broeleck/Wasserstand",
       "external_station_id": "2726599000100"
@@ -718,7 +718,7 @@
       "pegelonline_uuid": null,
       "nrw_befahrbarkeit": "befahrbar",
       "state": "DE-NW",
-      "flood_class": "Kein Hochwasser",
+      "flood_class": "Informationswert 1",
       "lhp_id": "NW_2725910000100",
       "station_link": "https://www.hochwasserportal.nrw/webpublic/#/overview/Wasserstand/station/28357/Eitorf/Wasserstand",
       "external_station_id": "2725910000100"
@@ -808,7 +808,7 @@
       "station": "Friedrichsthal",
       "status": "danger",
       "label": "⛔ Gefährlich (Hochwasser)",
-      "current": 546.0,
+      "current": 541.0,
       "min": 55.0,
       "ideal_min": 55.0,
       "ideal_max": 88.0,
